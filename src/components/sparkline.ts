@@ -9,12 +9,29 @@ export class SavantSparkline extends LitElement {
 
   protected override render() {
     const normalized = normalizePoints(this.points);
-    if (!normalized) return html`<div class="empty">No history available</div>`;
-    const { path, fillPath } = normalized;
+    const graph = normalized ?? flatline();
+    const noHistory = !normalized;
     return html`
-      <svg viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true">
-        <path class="fill" d=${fillPath}></path>
-        <path class="line" d=${path}></path>
+      <svg
+        data-no-history=${noHistory ? "true" : "false"}
+        viewBox="0 0 100 36"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="savant-sparkline-fill" x1="0" x2="0" y1="0" y2="1">
+            <stop class="fill-stop-strong" offset="0%"></stop>
+            <stop class="fill-stop-soft" offset="62%"></stop>
+            <stop class="fill-stop-clear" offset="100%"></stop>
+          </linearGradient>
+        </defs>
+        ${noHistory
+          ? ""
+          : html`
+              <path class="fill-base" d=${graph.fillPath}></path>
+              <path class="fill" fill="url(#savant-sparkline-fill)" d=${graph.fillPath}></path>
+            `}
+        <path class="line" d=${graph.path}></path>
       </svg>
     `;
   }
@@ -24,41 +41,63 @@ export class SavantSparkline extends LitElement {
       display: block;
       min-height: 32px;
       color: var(--savant-success);
-      opacity: 0.78;
+      --sparkline-fill-color: var(--savant-success);
+      opacity: 0.82;
     }
 
     :host([state="warning"]) {
       color: var(--savant-warning);
+      --sparkline-fill-color: var(--savant-warning);
     }
 
     :host([state="muted"]) {
       color: var(--savant-disabled);
+      --sparkline-fill-color: var(--savant-disabled);
     }
 
     svg {
       width: 100%;
       height: 100%;
       min-height: 32px;
-      overflow: visible;
+      color: currentColor;
+      overflow: hidden;
     }
 
     .line {
       fill: none;
       stroke: currentColor;
-      stroke-width: 1.8;
+      stroke-width: 1.45;
       vector-effect: non-scaling-stroke;
-      filter: drop-shadow(0 0 8px currentColor);
     }
 
     .fill {
-      fill: currentColor;
-      opacity: 0.15;
+      opacity: 1;
     }
 
-    .empty {
-      color: var(--secondary-text-color);
-      font-size: 13px;
-      padding-top: 8px;
+    .fill-base {
+      fill: currentColor;
+      opacity: 0.26;
+    }
+
+    .fill-stop-strong {
+      stop-color: var(--sparkline-fill-color);
+      stop-opacity: 0.36;
+    }
+
+    .fill-stop-soft {
+      stop-color: var(--sparkline-fill-color);
+      stop-opacity: 0.17;
+    }
+
+    .fill-stop-clear {
+      stop-color: var(--sparkline-fill-color);
+      stop-opacity: 0;
+    }
+
+    svg[data-no-history="true"] .line {
+      stroke-width: 1.1;
+      opacity: 0.82;
+      filter: none;
     }
   `;
 }
@@ -83,8 +122,8 @@ export function normalizePoints(points: SparklinePoint[]):
   const range = max - min || 1;
   const coords = values.map((value, index) => {
     const x = (index / (values.length - 1)) * 100;
-    const y = 32 - ((value - min) / range) * 26;
-    return [x, max === min ? 24 : y] as const;
+    const y = 23 - ((value - min) / range) * 18;
+    return [x, max === min ? 20 : y] as const;
   });
   const path = coords.map(([x, y], index) => `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`).join(" ");
   const first = coords[0]!;
@@ -92,6 +131,13 @@ export function normalizePoints(points: SparklinePoint[]):
   return {
     path,
     fillPath: `${path} L ${last[0].toFixed(2)} 36 L ${first[0].toFixed(2)} 36 Z`,
+  };
+}
+
+function flatline() {
+  return {
+    path: "M 0 20 L 100 20",
+    fillPath: "M 0 20 L 100 20 L 100 36 L 0 36 Z",
   };
 }
 

@@ -1,6 +1,7 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { fireEvent } from "../utilities/events";
+import "./savant-icon";
 
 @customElement("savant-hold-control-button")
 export class SavantHoldControlButton extends LitElement {
@@ -33,7 +34,7 @@ export class SavantHoldControlButton extends LitElement {
         @pointercancel=${this.cancelHold}
         @click=${this.preventClick}
       >
-        <span class="icon">⏻</span>
+        <span class="icon"><savant-icon icon="power"></savant-icon></span>
       </button>
     `;
   }
@@ -90,6 +91,7 @@ export class SavantHoldControlButton extends LitElement {
     button {
       width: 46px;
       height: 46px;
+      padding: 0;
       border-radius: 999px;
       border: 2px solid currentColor;
       background:
@@ -100,7 +102,6 @@ export class SavantHoldControlButton extends LitElement {
       place-items: center;
       cursor: pointer;
       touch-action: none;
-      box-shadow: 0 0 18px color-mix(in srgb, currentColor 18%, transparent);
     }
 
     button[disabled] {
@@ -117,8 +118,13 @@ export class SavantHoldControlButton extends LitElement {
       place-items: center;
       border-radius: 999px;
       background: var(--savant-tile-bg);
-      font-size: 19px;
       line-height: 1;
+    }
+
+    savant-icon {
+      display: block;
+      width: 20px;
+      height: 20px;
     }
   `;
 }

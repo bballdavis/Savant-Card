@@ -30,6 +30,19 @@
       };
 
       window.addEventListener("DOMContentLoaded", () => {
+        const savedTheme = localStorage.getItem("savant-demo-theme") ?? "dark";
+        document.documentElement.dataset.theme = savedTheme;
+        document.querySelector("[data-theme-toggle]").textContent =
+          savedTheme === "light" ? "Use dark mode" : "Use light mode";
+
+        document.querySelector("[data-theme-toggle]").addEventListener("click", () => {
+          const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+          document.documentElement.dataset.theme = next;
+          localStorage.setItem("savant-demo-theme", next);
+          document.querySelector("[data-theme-toggle]").textContent =
+            next === "light" ? "Use dark mode" : "Use light mode";
+        });
+
         for (const card of document.querySelectorAll("savant-energy-breaker-board-card")) {
           card.hass = hass;
           card.setConfig(configs[card.dataset.config]);
@@ -49,15 +62,34 @@
         --error-color: #ff594c;
         --disabled-text-color: #8b9298;
         --ha-card-border-radius: 16px;
+        color-scheme: dark;
+      }
+
+      :root[data-theme="light"] {
+        --primary-text-color: #15191c;
+        --secondary-text-color: #5d6670;
+        --ha-card-background: #f8fafb;
+        --card-background-color: #f8fafb;
+        --secondary-background-color: #eef2f4;
+        --divider-color: #cad1d7;
+        --success-color: #4f9d35;
+        --warning-color: #e07012;
+        --error-color: #c93c32;
+        --disabled-text-color: #8b9298;
+        color-scheme: light;
       }
 
       body {
         margin: 0;
         padding: 24px;
         color: var(--primary-text-color);
-        background: #0d1012;
+        background: var(--demo-page-background, #0d1012);
         font-family:
           Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      :root[data-theme="light"] body {
+        --demo-page-background: #eef1f3;
       }
 
       h1,
@@ -67,12 +99,19 @@
 
       .toolbar {
         display: flex;
+        align-items: center;
+        justify-content: space-between;
         gap: 10px;
         margin-bottom: 18px;
       }
 
-      button {
+      .theme-toggle {
         padding: 8px 10px;
+        border: 1px solid var(--divider-color);
+        border-radius: 999px;
+        color: var(--primary-text-color);
+        background: var(--secondary-background-color);
+        cursor: pointer;
       }
 
       .demo-grid {
@@ -82,7 +121,7 @@
 
       .demo-width {
         padding: 16px;
-        border: 1px solid #303940;
+        border: 1px solid var(--divider-color);
         border-radius: 16px;
       }
 
@@ -97,21 +136,13 @@
       .phone {
         max-width: 420px;
       }
-
-      .light {
-        --primary-text-color: #15191c;
-        --secondary-text-color: #596167;
-        --ha-card-background: #f8fafb;
-        --card-background-color: #f8fafb;
-        --secondary-background-color: #eef2f4;
-        --divider-color: #c9d0d5;
-        background: #eef1f3;
-        color: #15191c;
-      }
     </style>
   </head>
   <body>
-    <h1>Savant Energy Breaker Board Card</h1>
+    <div class="toolbar">
+      <h1>Savant Energy Breaker Board Card</h1>
+      <button class="theme-toggle" data-theme-toggle type="button">Use light mode</button>
+    </div>
     <div class="demo-grid">
       <section class="demo-width wide">
         <h2>Desktop standard grid</h2>
@@ -124,10 +155,6 @@
       <section class="demo-width tablet">
         <h2>Compact density</h2>
         <savant-energy-breaker-board-card data-config="compact"></savant-energy-breaker-board-card>
-      </section>
-      <section class="demo-width phone light">
-        <h2>Light theme narrow</h2>
-        <savant-energy-breaker-board-card data-config="loaded"></savant-energy-breaker-board-card>
       </section>
       <section class="demo-width wide">
         <h2>Empty state</h2>

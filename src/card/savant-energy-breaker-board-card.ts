@@ -98,7 +98,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   }
 
   private renderSkeletons() {
-    return html`<div class="board-grid">${Array.from(
+    return html`<div class=${`board-grid ${this.stacked ? "stacked" : ""}`}>${Array.from(
       { length: 8 },
       () => html`<savant-breaker-tile-skeleton ?stacked=${this.stacked}></savant-breaker-tile-skeleton>`,
     )}</div>`;
@@ -107,7 +107,10 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   private renderBreakers() {
     const grouped = groupBreakers(this.visibleBreakers(), this.config);
     return html`
-      <div class="board-grid" @savant-breaker-toggle=${this.handleToggle}>
+      <div
+        class=${`board-grid ${this.stacked ? "stacked" : ""}`}
+        @savant-breaker-toggle=${this.handleToggle}
+      >
         ${grouped.map(
           ([group, breakers]) => html`
             ${group ? html`<h3 class="group-title">${group}</h3>` : nothing}

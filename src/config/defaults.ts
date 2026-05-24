@@ -23,7 +23,7 @@ export const DEFAULT_CONFIG: SavantBreakerBoardConfig = {
     show_sparkline: true,
     show_state: true,
     show_controls: true,
-    show_area: false,
+    show_area: true,
     show_circuit_number: true,
   },
   graph: {

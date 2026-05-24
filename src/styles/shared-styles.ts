@@ -40,13 +40,18 @@ export const sharedStyles = css`
   .board-grid {
     container-type: inline-size;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(var(--tile-min-width, 184px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(var(--tile-min-width, 210px), 1fr));
+    align-items: stretch;
     gap: var(--tile-gap, 12px);
   }
 
   :host([density="compact"]) .board-grid {
-    --tile-min-width: 160px;
+    --tile-min-width: 178px;
     --tile-gap: 10px;
+  }
+
+  .board-grid.stacked {
+    grid-template-columns: 1fr;
   }
 
   @container (max-width: 540px) {

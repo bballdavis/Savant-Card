@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import "../../src/components/sparkline";
 import { normalizePoints } from "../../src/components/sparkline";
 
 describe("normalizePoints", () => {
@@ -7,7 +8,16 @@ describe("normalizePoints", () => {
   });
 
   it("handles flat and missing data", () => {
-    expect(normalizePoints([{ start: 1, value: 0 }, { start: 2, value: 0 }])?.path).toContain("24.00");
+    expect(normalizePoints([{ start: 1, value: 0 }, { start: 2, value: 0 }])?.path).toContain("20.00");
     expect(normalizePoints([])).toBeUndefined();
+  });
+
+  it("renders missing data as a flatline instead of text", async () => {
+    const element = document.createElement("savant-sparkline");
+    document.body.append(element);
+    await element.updateComplete;
+    expect(element.shadowRoot?.querySelector(".empty")).toBeNull();
+    expect(element.shadowRoot?.querySelector('svg[data-no-history="true"]')).toBeTruthy();
+    element.remove();
   });
 });

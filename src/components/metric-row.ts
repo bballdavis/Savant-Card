@@ -29,20 +29,23 @@ export class SavantMetricRow extends LitElement {
 
     .metric {
       display: grid;
-      gap: 2px;
+      gap: 3px;
       min-width: 48px;
     }
 
     span {
       color: var(--savant-muted);
-      font-size: 11px;
-      letter-spacing: 0.04em;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: 0.02em;
     }
 
     strong {
       color: var(--savant-tile-fg);
-      font-size: 14px;
-      font-weight: 650;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.1;
       white-space: nowrap;
     }
   `;

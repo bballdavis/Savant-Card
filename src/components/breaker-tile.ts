@@ -3,6 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 import "./sparkline";
 import "./metric-row";
 import "./hold-control-button";
+import "./savant-icon";
 import type { DiscoveredBreaker, ResolvedBreakerDisplay } from "../types/breaker";
 import type { BreakerStatistics } from "../types/statistics";
 import type { HomeAssistant } from "../types/home-assistant";
@@ -25,9 +26,11 @@ export class SavantBreakerTile extends LitElement {
   protected override render() {
     const state = this.runtimeState();
     const visual = this.visualState(state.powerWatts, state.switchState, state.available);
-    const subtitle = [this.display.show_area ? this.breaker.areaName : undefined, this.breaker.panelName, this.display.show_circuit_number && this.breaker.circuitNumber ? `Circuit ${this.breaker.circuitNumber}` : undefined]
-      .filter(Boolean)
-      .join(" • ");
+    const subtitle = this.display.show_area ? this.breaker.areaName : undefined;
+    const hasHistory = Boolean(this.statistics?.points.length);
+    const hasStats =
+      hasHistory &&
+      (this.statistics?.averageWatts !== undefined || this.statistics?.maximumWatts !== undefined);
     const controlVisible =
       this.display.show_controls &&
       this.display.control_mode !== "hidden" &&
@@ -39,8 +42,10 @@ export class SavantBreakerTile extends LitElement {
         <span class="mobile-bar" aria-hidden="true"></span>
         <span class="topline">
           <span class="state-dot"></span>
-          ${this.display.show_state ? html`<span class="state-text">${stateLabel(visual, state.switchState)}</span>` : ""}
-          <span class="bolt" aria-hidden="true">ϟ</span>
+          ${this.display.show_state
+            ? html`<span class="state-text">${stateLabel(visual, state.switchState)}</span>`
+            : ""}
+          ${this.renderEntityIcon()}
         </span>
         <span class="name">${this.display.label}</span>
         ${subtitle ? html`<span class="subtitle">${subtitle}</span>` : ""}
@@ -51,18 +56,28 @@ export class SavantBreakerTile extends LitElement {
             : this.display.show_sparkline
               ? html`<savant-sparkline
                   .points=${this.statistics?.points ?? []}
-                  .state=${visual === "high_load" ? "warning" : visual === "off" || visual === "unavailable" ? "muted" : "normal"}
+                  .state=${!hasHistory || visual === "off" || visual === "unavailable"
+                      ? "muted"
+                      : visual === "high_load"
+                        ? "warning"
+                        : "normal"}
                 ></savant-sparkline>`
               : ""}
         </span>
         <span class="metrics">
-          ${this.display.show_average_power || this.display.show_maximum_power
+          ${hasStats && (this.display.show_average_power || this.display.show_maximum_power)
             ? html`<savant-metric-row
-                .avg=${this.display.show_average_power ? formatPower(this.statistics?.averageWatts) : "--"}
-                .max=${this.display.show_maximum_power ? formatPower(this.statistics?.maximumWatts) : "--"}
+                .avg=${this.display.show_average_power
+                  ? formatPower(this.statistics?.averageWatts)
+                  : "--"}
+                .max=${this.display.show_maximum_power
+                  ? formatPower(this.statistics?.maximumWatts)
+                  : "--"}
               ></savant-metric-row>`
             : ""}
-          ${this.display.show_energy ? html`<span class="energy">${formatEnergy(state.energyValue)}</span>` : ""}
+          ${this.display.show_energy
+            ? html`<span class="energy">${formatEnergy(state.energyValue)}</span>`
+            : ""}
         </span>
         ${this.error ? html`<span class="feedback">${this.error}</span>` : ""}
         ${controlVisible
@@ -78,6 +93,15 @@ export class SavantBreakerTile extends LitElement {
           : ""}
       </button>
     `;
+  }
+
+  private renderEntityIcon() {
+    const powerEntity = this.breaker.entities.power;
+    const icon = powerEntity ? this.hass?.states[powerEntity]?.attributes.icon : undefined;
+    if (typeof icon === "string" && icon && customElements.get("ha-icon")) {
+      return html`<ha-icon class="entity-icon" .icon=${icon}></ha-icon>`;
+    }
+    return html`<savant-icon class="entity-icon" icon="flash"></savant-icon>`;
   }
 
   private runtimeState() {
@@ -106,7 +130,8 @@ export class SavantBreakerTile extends LitElement {
   private openMoreInfo(event: Event): void {
     const target = event.target as HTMLElement;
     if (target.closest("savant-hold-control-button")) return;
-    const entity = this.breaker.entities.power ?? this.breaker.entities.switch ?? this.breaker.entities.energy;
+    const entity =
+      this.breaker.entities.power ?? this.breaker.entities.switch ?? this.breaker.entities.energy;
     if (!entity) return;
     fireEvent(this, "hass-action", {
       config: {
@@ -121,8 +146,11 @@ export class SavantBreakerTile extends LitElement {
     :host {
       display: block;
       min-width: 0;
+      aspect-ratio: 1 / 1;
       --status-color: var(--savant-success);
       --control-color: var(--status-color);
+      --savant-font-family:
+        Inter, "SF Pro Display", "SF Pro Text", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
     .tile {
@@ -130,18 +158,23 @@ export class SavantBreakerTile extends LitElement {
       display: grid;
       grid-template-rows: auto auto auto 1fr auto;
       width: 100%;
-      min-height: var(--tile-height, 206px);
+      height: 100%;
+      min-height: 0;
       padding: 16px;
       overflow: hidden;
       text-align: left;
       border: 1px solid var(--savant-border);
       border-radius: var(--savant-radius);
       background:
-        radial-gradient(circle at 72% 78%, color-mix(in srgb, var(--status-color) 14%, transparent), transparent 38%),
-        linear-gradient(145deg, color-mix(in srgb, var(--savant-tile-bg) 94%, white), var(--savant-tile-bg));
+        linear-gradient(
+          145deg,
+          color-mix(in srgb, var(--savant-tile-bg) 94%, white),
+          var(--savant-tile-bg)
+        );
       color: var(--savant-tile-fg);
       box-shadow: var(--ha-card-box-shadow, 0 8px 20px rgb(0 0 0 / 0.24));
-      font: inherit;
+      font-family: var(--savant-breaker-font-family, var(--savant-font-family));
+      font-weight: 400;
       cursor: pointer;
     }
 
@@ -165,6 +198,8 @@ export class SavantBreakerTile extends LitElement {
       min-width: 0;
       color: var(--status-color);
       font-size: 12px;
+      line-height: 1.2;
+      font-weight: 500;
       text-transform: uppercase;
     }
 
@@ -176,18 +211,22 @@ export class SavantBreakerTile extends LitElement {
       flex: none;
     }
 
-    .bolt {
+    .entity-icon {
       margin-left: auto;
+      width: 24px;
+      height: 24px;
       color: var(--primary-text-color);
-      font-size: 25px;
+      font-size: 24px;
       line-height: 1;
     }
 
     .name {
       display: block;
-      margin-top: 12px;
+      margin-top: 10px;
       font-size: 17px;
-      font-weight: 650;
+      font-weight: 500;
+      line-height: 1.22;
+      min-height: 1.22em;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -196,17 +235,22 @@ export class SavantBreakerTile extends LitElement {
     .subtitle {
       color: var(--savant-muted);
       font-size: 14px;
+      line-height: 1.25;
+      font-weight: 400;
+      min-height: 1.25em;
+      margin-top: 1px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
     .power {
-      margin-top: 18px;
+      margin-top: 15px;
       font-size: 31px;
-      font-weight: 720;
+      font-weight: 500;
       color: var(--status-color);
       letter-spacing: 0;
+      line-height: 1.12;
       white-space: nowrap;
     }
 
@@ -217,8 +261,8 @@ export class SavantBreakerTile extends LitElement {
 
     .graph {
       align-self: end;
-      min-height: 40px;
-      margin: 2px 0 44px;
+      min-height: 58px;
+      margin: 2px -16px 52px;
       pointer-events: none;
     }
 
@@ -226,7 +270,7 @@ export class SavantBreakerTile extends LitElement {
       position: absolute;
       left: 16px;
       right: 74px;
-      bottom: 17px;
+      bottom: 15px;
       display: flex;
       align-items: end;
       gap: 12px;
@@ -265,7 +309,6 @@ export class SavantBreakerTile extends LitElement {
     }
 
     :host-context([density="compact"]) .tile {
-      min-height: 158px;
       padding: 12px;
     }
 
@@ -276,11 +319,16 @@ export class SavantBreakerTile extends LitElement {
 
     :host-context([density="compact"]) .graph {
       min-height: 32px;
-      margin-bottom: 36px;
+      margin-bottom: 50px;
+    }
+
+    :host([stacked]) {
+      aspect-ratio: auto;
     }
 
     :host([stacked]) .tile {
       min-height: 132px;
+      height: auto;
       grid-template-columns: minmax(0, 1fr) auto;
       grid-template-rows: auto auto auto 1fr;
       padding: 14px 68px 14px 34px;
@@ -314,7 +362,7 @@ export class SavantBreakerTile extends LitElement {
     }
 
     :host([stacked]) .name {
-      margin-top: 4px;
+      margin-top: 5px;
     }
 
     :host([stacked]) .power {
@@ -324,7 +372,7 @@ export class SavantBreakerTile extends LitElement {
     :host([stacked]) .graph {
       grid-column: 1 / 2;
       min-height: 28px;
-      margin: 0 0 0;
+      margin: 0 0 34px -18px;
     }
 
     :host([stacked]) .metrics {
@@ -339,12 +387,11 @@ export class SavantBreakerTile extends LitElement {
       bottom: auto;
     }
 
-    :host([stacked]) .bolt {
+    :host([stacked]) .entity-icon {
       position: absolute;
       right: 20px;
       top: 14px;
     }
-
   `;
 }
 

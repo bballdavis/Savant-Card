@@ -107,7 +107,13 @@ npm test
 npm run build
 ```
 
-Open the Vite URL and use `demo/index.html` to inspect wide, tablet, phone, compact, empty, and light theme states.
+Open the Vite URL and use `demo/index.html` to inspect wide, tablet, phone, compact, and empty states. The demo starts in dark mode and has a top-right toggle for light mode.
+
+To regenerate visual smoke images for both themes:
+
+```bash
+npm run demo:capture
+```
 
 ## HACS
 
