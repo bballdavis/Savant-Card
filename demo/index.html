@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Savant Energy Breaker Board Demo</title>
+    <script type="module" src="/src/index.ts"></script>
+    <script type="module">
+      import { createMockHass } from "./mock-hass.ts";
+
+      const hass = createMockHass();
+      const configs = {
+        loaded: {
+          type: "custom:savant-energy-breaker-board-card",
+          title: "Electrical Panel",
+          breaker_overrides: {
+            "device:breaker_7": { show_controls: false },
+          },
+        },
+        compact: {
+          type: "custom:savant-energy-breaker-board-card",
+          title: "Compact Board",
+          layout: { density: "compact", sort_by: "current_power_descending" },
+        },
+        empty: {
+          type: "custom:savant-energy-breaker-board-card",
+          title: "No Breakers",
+          discovery: { enabled: false },
+        },
+      };
+
+      window.addEventListener("DOMContentLoaded", () => {
+        for (const card of document.querySelectorAll("savant-energy-breaker-board-card")) {
+          card.hass = hass;
+          card.setConfig(configs[card.dataset.config]);
+        }
+      });
+    </script>
+    <style>
+      :root {
+        --primary-text-color: #f7f9fb;
+        --secondary-text-color: #a9b0b7;
+        --ha-card-background: #151a1d;
+        --card-background-color: #151a1d;
+        --secondary-background-color: #23292d;
+        --divider-color: #3a4248;
+        --success-color: #79c84f;
+        --warning-color: #ff8a1d;
+        --error-color: #ff594c;
+        --disabled-text-color: #8b9298;
+        --ha-card-border-radius: 16px;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        color: var(--primary-text-color);
+        background: #0d1012;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      h1,
+      h2 {
+        letter-spacing: 0;
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      button {
+        padding: 8px 10px;
+      }
+
+      .demo-grid {
+        display: grid;
+        gap: 28px;
+      }
+
+      .demo-width {
+        padding: 16px;
+        border: 1px solid #303940;
+        border-radius: 16px;
+      }
+
+      .wide {
+        max-width: 1180px;
+      }
+
+      .tablet {
+        max-width: 720px;
+      }
+
+      .phone {
+        max-width: 420px;
+      }
+
+      .light {
+        --primary-text-color: #15191c;
+        --secondary-text-color: #596167;
+        --ha-card-background: #f8fafb;
+        --card-background-color: #f8fafb;
+        --secondary-background-color: #eef2f4;
+        --divider-color: #c9d0d5;
+        background: #eef1f3;
+        color: #15191c;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Savant Energy Breaker Board Card</h1>
+    <div class="demo-grid">
+      <section class="demo-width wide">
+        <h2>Desktop standard grid</h2>
+        <savant-energy-breaker-board-card data-config="loaded"></savant-energy-breaker-board-card>
+      </section>
+      <section class="demo-width phone">
+        <h2>Mobile stacked container</h2>
+        <savant-energy-breaker-board-card data-config="loaded"></savant-energy-breaker-board-card>
+      </section>
+      <section class="demo-width tablet">
+        <h2>Compact density</h2>
+        <savant-energy-breaker-board-card data-config="compact"></savant-energy-breaker-board-card>
+      </section>
+      <section class="demo-width phone light">
+        <h2>Light theme narrow</h2>
+        <savant-energy-breaker-board-card data-config="loaded"></savant-energy-breaker-board-card>
+      </section>
+      <section class="demo-width wide">
+        <h2>Empty state</h2>
+        <savant-energy-breaker-board-card data-config="empty"></savant-energy-breaker-board-card>
+      </section>
+    </div>
+  </body>
+</html>

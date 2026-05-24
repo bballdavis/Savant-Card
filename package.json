@@ -1,0 +1,47 @@
+{
+  "name": "savant-energy-breaker-board-card",
+  "version": "0.1.0",
+  "description": "Home Assistant Lovelace card for discovering, displaying, and safely controlling Savant Energy breakers.",
+  "type": "module",
+  "main": "dist/savant-energy-breaker-board-card.js",
+  "files": [
+    "dist",
+    "README.md",
+    "hacs.json"
+  ],
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "demo": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "check": "npm run lint && npm run test && npm run build"
+  },
+  "keywords": [
+    "home-assistant",
+    "lovelace",
+    "custom-card",
+    "savant",
+    "energy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "lit": "^3.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "@types/node": "^22.15.21",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
+    "globals": "^16.2.0",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.1",
+    "vite": "^6.3.5",
+    "vitest": "^3.1.4"
+  }
+}
