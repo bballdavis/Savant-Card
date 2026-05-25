@@ -4,6 +4,7 @@ import "../components/breaker-tile";
 import "../components/breaker-tile-skeleton";
 import "../components/board-empty-state";
 import "../components/board-error-state";
+import "../components/savant-icon";
 import { BreakerDiscoveryService } from "../data/breaker-discovery-service";
 import { StatisticsManager } from "../data/statistics-manager";
 import { DEFAULT_CONFIG } from "../config/defaults";
@@ -141,47 +142,56 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   private renderHeader() {
     return html`
       <div class="board-header">
-        <div class="savant-wordmark" aria-label="Savant">SAVANT</div>
-        <div class="board-tools">
-          <div class="tool-wrap">
-            <button class="chip-tool" type="button" @click=${() => (this.sortMenuOpen = !this.sortMenuOpen)}>
-              <span aria-hidden="true">↕</span>
-              <span class="sr-only">Sort</span>
-            </button>
-            ${this.sortMenuOpen
-              ? html`<div class="tool-popover">
-                  ${SORT_OPTIONS.map(
-                    ({ value, label }) => html`
-                      <button
-                        class=${this.effectiveSortBy() === value ? "menu-option selected" : "menu-option"}
-                        type="button"
-                        @click=${() => this.setRuntimeSort(value)}
-                      >
-                        ${label}
-                      </button>
-                    `,
-                  )}
-                </div>`
-              : nothing}
-          </div>
-          <div class="tool-wrap">
-            <button class="chip-tool" type="button" @click=${() => (this.searchOpen = !this.searchOpen)}>
-              <span aria-hidden="true">⌕</span>
-              <span class="sr-only">Search</span>
-            </button>
-            ${this.searchOpen
-              ? html`<div class="tool-popover search-popover">
-                  <input
-                    class="search-input"
-                    type="search"
-                    placeholder="Search loads"
-                    .value=${this.searchQuery}
-                    @input=${(event: Event) => (this.searchQuery = (event.target as HTMLInputElement).value)}
-                  />
-                </div>`
-              : nothing}
+        <div class="board-header-top">
+          <div class="savant-wordmark" aria-label="Savant">SAVANT</div>
+          <div class="board-tools">
+            <div class="tool-wrap">
+              <button class="chip-tool" type="button" @click=${() => (this.sortMenuOpen = !this.sortMenuOpen)}>
+                <savant-icon icon="sort_amount_down" aria-hidden="true"></savant-icon>
+                <span class="sr-only">Sort</span>
+              </button>
+              ${this.sortMenuOpen
+                ? html`<div class="tool-popover">
+                    ${SORT_OPTIONS.map(
+                      ({ value, label }) => html`
+                        <button
+                          class=${this.effectiveSortBy() === value ? "menu-option selected" : "menu-option"}
+                          type="button"
+                          @click=${() => this.setRuntimeSort(value)}
+                        >
+                          ${label}
+                        </button>
+                      `,
+                    )}
+                  </div>`
+                : nothing}
+            </div>
+            <div class="tool-wrap">
+              <button
+                class=${this.searchOpen ? "chip-tool active" : "chip-tool"}
+                type="button"
+                @click=${() => (this.searchOpen = !this.searchOpen)}
+              >
+                <savant-icon icon="search" aria-hidden="true"></savant-icon>
+                <span class="sr-only">Search</span>
+              </button>
+            </div>
           </div>
         </div>
+        ${this.searchOpen
+          ? html`<div class="board-search-row" role="search" aria-label="Search loads">
+              <div class="board-search-shell">
+                <savant-icon icon="search" aria-hidden="true"></savant-icon>
+                <input
+                  class="search-input"
+                  type="search"
+                  placeholder="Search loads"
+                  .value=${this.searchQuery}
+                  @input=${(event: Event) => (this.searchQuery = (event.target as HTMLInputElement).value)}
+                />
+              </div>
+            </div>`
+          : nothing}
       </div>
     `;
   }
@@ -336,6 +346,23 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
         --tile-height: 158px;
       }
 
+      .board-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+        width: 100%;
+        padding-bottom: 10px;
+      }
+
+      .board-header-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        min-width: 0;
+      }
+
       .board-tools {
         display: flex;
         align-items: center;
@@ -376,9 +403,18 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
         cursor: pointer;
       }
 
+      .chip-tool savant-icon {
+        width: 20px;
+        height: 20px;
+      }
+
       .chip-tool:hover,
       .chip-tool:focus-visible {
         border-color: color-mix(in srgb, var(--savant-border) 70%, var(--primary-text-color));
+      }
+
+      .chip-tool.active {
+        border-color: color-mix(in srgb, var(--savant-border) 55%, var(--primary-color));
       }
 
       .sr-only {
@@ -390,6 +426,47 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
         clip: rect(0, 0, 0, 0);
         white-space: nowrap;
         border: 0;
+      }
+
+      .board-search-row {
+        display: block;
+        width: 100%;
+      }
+
+      .board-search-shell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        box-sizing: border-box;
+        min-height: 36px;
+        padding: 0 12px;
+        border: 1px solid var(--savant-border);
+        border-radius: var(--savant-radius);
+        background:
+          linear-gradient(
+            145deg,
+            color-mix(in srgb, var(--savant-tile-bg) 94%, white),
+            var(--savant-tile-bg)
+          );
+      }
+
+      .board-search-shell savant-icon {
+        width: 18px;
+        height: 18px;
+        color: color-mix(in srgb, var(--primary-text-color) 75%, var(--secondary-text-color));
+        flex: none;
+      }
+
+      .board-search-shell .search-input {
+        flex: 1;
+        width: 100%;
+        min-width: 0;
+        padding: 9px 0;
+        border: 0;
+        outline: none;
+        color: var(--primary-text-color);
+        background: transparent;
       }
 
       .tool-popover {
@@ -424,12 +501,6 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
 
       .search-input {
         box-sizing: border-box;
-        width: 220px;
-        padding: 9px 10px;
-        border: 1px solid var(--savant-border);
-        border-radius: 8px;
-        color: var(--primary-text-color);
-        background: var(--savant-tile-bg);
       }
     `,
   ];
