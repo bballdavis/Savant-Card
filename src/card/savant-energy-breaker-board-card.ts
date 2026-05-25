@@ -12,7 +12,7 @@ import { normalizeConfig, resolveBreakerDisplay } from "../config/normalize-conf
 import { sharedStyles } from "../styles/shared-styles";
 import type { DiscoveredBreaker } from "../types/breaker";
 import type { HomeAssistant } from "../types/home-assistant";
-import type { PartialSavantBreakerBoardConfig, SavantBreakerBoardConfig } from "../types/config";
+import type { PartialSavantBreakerBoardConfig, SavantBreakerBoardConfig, SortBy } from "../types/config";
 import type { BreakerStatistics } from "../types/statistics";
 import { parseNumber } from "../utilities/format-power";
 
@@ -27,6 +27,10 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   @state() private pendingSwitches = new Set<string>();
   @state() private toggleErrors = new Map<string, string>();
   @state() private stacked = false;
+  @state() private sortMenuOpen = false;
+  @state() private searchOpen = false;
+  @state() private searchQuery = "";
+  @state() private runtimeSortBy: SortBy | undefined;
   private discovery = new BreakerDiscoveryService();
   private statistics = new StatisticsManager();
   private discoveryKey = "";
@@ -36,6 +40,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
 
   public setConfig(config: PartialSavantBreakerBoardConfig): void {
     this.config = normalizeConfig(config);
+    this.runtimeSortBy = this.loadPersistedSort() ?? this.config.layout.sort_by;
     this.setAttribute("density", this.config.layout.density);
     this.setAttribute("mobile-view", this.config.layout.mobile_view);
     this.discoveryKey = "";
@@ -53,7 +58,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
     return {
       title: "Electrical Panel",
       discovery: { enabled: true },
-      layout: { group_by: "panel", density: "comfortable", mobile_view: "standard" },
+      layout: { group_by: "none", density: "comfortable", mobile_view: "standard" },
     };
   }
 
@@ -112,8 +117,8 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   protected override render() {
     return html`
       <ha-card>
-        ${this.config.display.show_title && this.config.title
-          ? html`<div class="board-header"><h2 class="board-title">${this.config.title}</h2></div>`
+        ${this.config.display.show_title
+          ? this.renderHeader()
           : nothing}
         ${this.error
           ? html`<savant-board-error-state .message=${this.error}></savant-board-error-state>`
@@ -131,6 +136,52 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
       { length: 8 },
       () => html`<savant-breaker-tile-skeleton ?stacked=${this.stacked}></savant-breaker-tile-skeleton>`,
     )}</div>`;
+  }
+
+  private renderHeader() {
+    return html`
+      <div class="board-header">
+        <div class="savant-wordmark" aria-label="Savant">SAVANT</div>
+        <div class="board-tools">
+          <div class="tool-wrap">
+            <button class="chip-tool" type="button" @click=${() => (this.sortMenuOpen = !this.sortMenuOpen)}>
+              Sort
+            </button>
+            ${this.sortMenuOpen
+              ? html`<div class="tool-popover">
+                  ${SORT_OPTIONS.map(
+                    ({ value, label }) => html`
+                      <button
+                        class=${this.effectiveSortBy() === value ? "menu-option selected" : "menu-option"}
+                        type="button"
+                        @click=${() => this.setRuntimeSort(value)}
+                      >
+                        ${label}
+                      </button>
+                    `,
+                  )}
+                </div>`
+              : nothing}
+          </div>
+          <div class="tool-wrap">
+            <button class="chip-tool" type="button" @click=${() => (this.searchOpen = !this.searchOpen)}>
+              Search
+            </button>
+            ${this.searchOpen
+              ? html`<div class="tool-popover search-popover">
+                  <input
+                    class="search-input"
+                    type="search"
+                    placeholder="Search loads"
+                    .value=${this.searchQuery}
+                    @input=${(event: Event) => (this.searchQuery = (event.target as HTMLInputElement).value)}
+                  />
+                </div>`
+              : nothing}
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   private renderBreakers() {
@@ -217,12 +268,40 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
 
   private visibleBreakers(): DiscoveredBreaker[] {
     const excluded = new Set(this.config.excluded_breakers);
+    const query = this.searchQuery.trim().toLowerCase();
+    const filtered = this.breakers.filter((breaker) => {
+      if (excluded.has(breaker.id)) return false;
+      if (!query) return true;
+      return [breaker.name, breaker.areaName, breaker.panelName]
+        .filter(Boolean)
+        .some((value) => value!.toLowerCase().includes(query));
+    });
     return sortBreakers(
-      this.breakers.filter((breaker) => !excluded.has(breaker.id)),
+      filtered,
       this.config,
       this.hass,
       this.stats,
+      this.effectiveSortBy(),
     );
+  }
+
+  private effectiveSortBy(): SortBy {
+    return this.runtimeSortBy ?? this.config.layout.sort_by;
+  }
+
+  private setRuntimeSort(sortBy: SortBy): void {
+    this.runtimeSortBy = sortBy;
+    this.sortMenuOpen = false;
+    window.localStorage?.setItem(this.persistedSortKey(), sortBy);
+  }
+
+  private loadPersistedSort(): SortBy | undefined {
+    const value = window.localStorage?.getItem(this.persistedSortKey()) as SortBy | null;
+    return SORT_OPTIONS.some((option) => option.value === value) ? value ?? undefined : undefined;
+  }
+
+  private persistedSortKey(): string {
+    return `savant-breaker-board-sort:${this.config.title ?? "default"}`;
   }
 
   private handleToggle = async (event: CustomEvent<{ breakerId: string }>): Promise<void> => {
@@ -253,29 +332,108 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
       :host([density="compact"]) {
         --tile-height: 158px;
       }
+
+      .board-tools {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+      }
+
+      .savant-wordmark {
+        font-size: 26px;
+        line-height: 36px;
+        height: 36px;
+        font-weight: 800;
+        letter-spacing: 0;
+        color: var(--primary-text-color);
+      }
+
+      .tool-wrap {
+        position: relative;
+      }
+
+      .chip-tool {
+        height: 36px;
+        padding: 0 13px;
+        border: 1px solid var(--savant-border);
+        border-radius: var(--savant-radius);
+        color: var(--primary-text-color);
+        background: var(--savant-tile-bg);
+        cursor: pointer;
+      }
+
+      .tool-popover {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 6px);
+        z-index: 10;
+        display: grid;
+        gap: 4px;
+        min-width: 190px;
+        padding: 8px;
+        border: 1px solid var(--savant-border);
+        border-radius: var(--savant-radius);
+        background: var(--ha-card-background, var(--card-background-color));
+        box-shadow: var(--ha-card-box-shadow, 0 8px 20px rgb(0 0 0 / 0.24));
+      }
+
+      .menu-option {
+        padding: 8px 10px;
+        border: 0;
+        border-radius: 8px;
+        color: var(--primary-text-color);
+        background: transparent;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .menu-option.selected,
+      .menu-option:hover {
+        background: var(--savant-tile-bg);
+      }
+
+      .search-input {
+        box-sizing: border-box;
+        width: 220px;
+        padding: 9px 10px;
+        border: 1px solid var(--savant-border);
+        border-radius: 8px;
+        color: var(--primary-text-color);
+        background: var(--savant-tile-bg);
+      }
     `,
   ];
 }
+
+const SORT_OPTIONS: Array<{ value: SortBy; label: string }> = [
+  { value: "circuit_number", label: "Circuit number" },
+  { value: "name", label: "Name" },
+  { value: "current_power_descending", label: "Current power" },
+  { value: "highest_usage", label: "Highest usage" },
+  { value: "manual", label: "Manual" },
+];
 
 function sortBreakers(
   breakers: DiscoveredBreaker[],
   config: SavantBreakerBoardConfig,
   hass?: HomeAssistant,
   stats = new Map<string, BreakerStatistics>(),
+  sortBy: SortBy = config.layout.sort_by,
 ): DiscoveredBreaker[] {
   return [...breakers].sort((a, b) => {
-    if (config.layout.sort_by === "name") return a.name.localeCompare(b.name);
-    if (config.layout.sort_by === "current_power_descending") {
+    if (sortBy === "name") return a.name.localeCompare(b.name);
+    if (sortBy === "current_power_descending") {
       const av = parseNumber(a.entities.power ? hass?.states[a.entities.power]?.state : undefined) ?? -Infinity;
       const bv = parseNumber(b.entities.power ? hass?.states[b.entities.power]?.state : undefined) ?? -Infinity;
       return bv - av;
     }
-    if (config.layout.sort_by === "highest_usage") {
+    if (sortBy === "highest_usage") {
       const av = usageSortValue(a, stats, hass);
       const bv = usageSortValue(b, stats, hass);
       return bv - av || a.name.localeCompare(b.name);
     }
-    if (config.layout.sort_by === "manual") return 0;
+    if (sortBy === "manual") return 0;
     return (a.circuitNumber ?? 9999) - (b.circuitNumber ?? 9999) || a.name.localeCompare(b.name);
   });
 }

@@ -49,8 +49,8 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
           ${this.switch("Ultra-compact mobile view", this.config.layout.mobile_view === "ultra_compact", (enabled) =>
             this.patch({ layout: { ...this.config.layout, mobile_view: enabled ? "ultra_compact" : "standard" } }),
           )}
-          ${this.select("Group", this.config.layout.group_by, ["none", "panel", "area", "panel_then_area"], (value) =>
-            this.patch({ layout: { ...this.config.layout, group_by: value as any } }),
+          ${this.switch("Group by breaker type", this.config.layout.group_by !== "none", (enabled) =>
+            this.patch({ layout: { ...this.config.layout, group_by: enabled ? "panel" : "none" } }),
           )}
           ${this.select("Sort", this.config.layout.sort_by, ["circuit_number", "name", "current_power_descending", "highest_usage", "manual"], (value) =>
             this.patch({ layout: { ...this.config.layout, sort_by: value as any } }),

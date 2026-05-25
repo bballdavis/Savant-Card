@@ -299,6 +299,23 @@ export class SavantBreakerTile extends LitElement {
       paint-order: stroke fill;
     }
 
+    :host(:not([stacked])) .subtitle {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      top: 74px;
+      margin: 0;
+      min-height: 0;
+    }
+
+    :host(:not([stacked])) .power {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      top: 93px;
+      margin: 0;
+    }
+
     .tile.on .power {
       color: var(--savant-tile-fg);
     }

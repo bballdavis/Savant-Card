@@ -28,4 +28,22 @@ describe("StatisticsManager", () => {
     expect(statsRequest?.period).toBe("5minute");
     expect(Date.parse(statsRequest?.end_time) - Date.parse(statsRequest?.start_time)).toBe(12 * 60 * 60 * 1000);
   });
+
+  it("fetches 6h recorder statistics instead of falling back to raw history", async () => {
+    const messages: Array<Record<string, any>> = [];
+    const hass = createHass();
+    const connection = hass.connection!;
+    const originalSend = connection.sendMessagePromise!.bind(connection);
+    connection.sendMessagePromise = async <T = any>(message: Record<string, any>): Promise<T> => {
+      messages.push(message);
+      return originalSend<T>(message);
+    };
+
+    await new StatisticsManager().getStatistics(hass as HomeAssistant, "sensor.kitchen_power", "6h", 300);
+
+    const statsRequest = messages.find((message) => message.type === "recorder/statistics_during_period");
+    expect(statsRequest?.period).toBe("5minute");
+    expect(Date.parse(statsRequest?.end_time) - Date.parse(statsRequest?.start_time)).toBe(6 * 60 * 60 * 1000);
+    expect(messages.some((message) => message.type === "history/history_during_period")).toBe(false);
+  });
 });

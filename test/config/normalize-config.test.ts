@@ -6,6 +6,7 @@ describe("normalizeConfig", () => {
     const config = normalizeConfig({ graph: { refresh_interval_seconds: 5 }, layout: { density: "compact" } });
     expect(config.discovery.enabled).toBe(true);
     expect(config.graph.refresh_interval_seconds).toBe(30);
+    expect(config.layout.group_by).toBe("none");
     expect(config.layout.density).toBe("compact");
     expect(config.layout.mobile_view).toBe("standard");
     expect(config.display.show_title).toBe(true);

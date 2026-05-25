@@ -11,7 +11,7 @@ export const DEFAULT_CONFIG: SavantBreakerBoardConfig = {
     area_filter: null,
   },
   layout: {
-    group_by: "panel",
+    group_by: "none",
     sort_by: "circuit_number",
     density: "comfortable",
     mobile_view: "standard",
