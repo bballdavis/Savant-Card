@@ -38,7 +38,8 @@ export class SavantSparkline extends LitElement {
   public static override styles = css`
     :host {
       display: block;
-      min-height: 32px;
+      height: 100%;
+      min-height: 0;
       color: var(--savant-success);
       --sparkline-fill-color: var(--savant-success);
       opacity: 1;
@@ -55,9 +56,10 @@ export class SavantSparkline extends LitElement {
     }
 
     svg {
+      display: block;
       width: 100%;
       height: 100%;
-      min-height: 32px;
+      min-height: 0;
       color: currentColor;
       overflow: hidden;
     }

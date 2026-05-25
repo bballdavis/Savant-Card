@@ -553,6 +553,7 @@ export class SavantBreakerTile extends LitElement {
     :host([stacked][mobile-layout="ultra_compact"]) .graph-skeleton {
       height: 22px;
       min-height: 22px;
+      max-height: 22px;
       opacity: 0.95;
     }
 

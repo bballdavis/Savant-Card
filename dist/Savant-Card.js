@@ -637,7 +637,8 @@ let Q = class extends y {
 Q.styles = x`
     :host {
       display: block;
-      min-height: 32px;
+      height: 100%;
+      min-height: 0;
       color: var(--savant-success);
       --sparkline-fill-color: var(--savant-success);
       opacity: 1;
@@ -654,9 +655,10 @@ Q.styles = x`
     }
 
     svg {
+      display: block;
       width: 100%;
       height: 100%;
-      min-height: 32px;
+      min-height: 0;
       color: currentColor;
       overflow: hidden;
     }
@@ -1534,6 +1536,7 @@ _.styles = x`
     :host([stacked][mobile-layout="ultra_compact"]) .graph-skeleton {
       height: 22px;
       min-height: 22px;
+      max-height: 22px;
       opacity: 0.95;
     }
 
