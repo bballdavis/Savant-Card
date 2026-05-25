@@ -41,7 +41,7 @@ export const sharedStyles = css`
     container-type: inline-size;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(var(--tile-min-width, 210px), 1fr));
-    align-items: stretch;
+    align-items: start;
     gap: var(--tile-gap, 12px);
   }
 

@@ -1273,7 +1273,7 @@ _.styles = x`
       position: absolute;
       left: 0;
       right: 0;
-      bottom: 60px;
+      bottom: 82px;
       height: 58px;
       min-height: 58px;
       margin: 0;
@@ -1290,7 +1290,7 @@ _.styles = x`
       align-items: end;
       gap: 12px;
       min-width: 0;
-      z-index: 1;
+      z-index: 2;
     }
 
     .energy,
@@ -1310,7 +1310,7 @@ _.styles = x`
       position: absolute;
       right: 14px;
       bottom: 14px;
-      z-index: 1;
+      z-index: 3;
     }
 
     .mobile-bar {
@@ -1361,7 +1361,7 @@ _.styles = x`
     :host-context([density="compact"]) .graph {
       height: 32px;
       min-height: 32px;
-      bottom: 50px;
+      bottom: 68px;
     }
 
     :host([stacked]) {
@@ -2441,7 +2441,7 @@ const pr = x`
     container-type: inline-size;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(var(--tile-min-width, 210px), 1fr));
-    align-items: stretch;
+    align-items: start;
     gap: var(--tile-gap, 12px);
   }
 

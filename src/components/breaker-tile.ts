@@ -292,7 +292,7 @@ export class SavantBreakerTile extends LitElement {
       position: absolute;
       left: 0;
       right: 0;
-      bottom: 60px;
+      bottom: 82px;
       height: 58px;
       min-height: 58px;
       margin: 0;
@@ -309,7 +309,7 @@ export class SavantBreakerTile extends LitElement {
       align-items: end;
       gap: 12px;
       min-width: 0;
-      z-index: 1;
+      z-index: 2;
     }
 
     .energy,
@@ -329,7 +329,7 @@ export class SavantBreakerTile extends LitElement {
       position: absolute;
       right: 14px;
       bottom: 14px;
-      z-index: 1;
+      z-index: 3;
     }
 
     .mobile-bar {
@@ -380,7 +380,7 @@ export class SavantBreakerTile extends LitElement {
     :host-context([density="compact"]) .graph {
       height: 32px;
       min-height: 32px;
-      bottom: 50px;
+      bottom: 68px;
     }
 
     :host([stacked]) {
