@@ -114,7 +114,7 @@ export function normalizePoints(points: SparklinePoint[]):
 }
 
 function yForValue(value: number, max: number): number {
-  return 34 - (Math.max(0, value) / max) * 28;
+  return ZERO_Y - (Math.max(0, value) / max) * (ZERO_Y - TOP_Y);
 }
 
 function domainMax(values: number[]): number {
@@ -142,7 +142,8 @@ function zeroLine(count: number) {
   return { path, fillPath: "" };
 }
 
-const ZERO_Y = 31;
+const TOP_Y = 6;
+const ZERO_Y = 29;
 
 function linePath(coords: Array<readonly [number, number, number]>): string {
   if (coords.every(([, , value]) => value === 0)) {
