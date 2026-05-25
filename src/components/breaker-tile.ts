@@ -263,6 +263,9 @@ export class SavantBreakerTile extends LitElement {
       white-space: nowrap;
       position: relative;
       z-index: 1;
+      text-shadow: var(--savant-text-halo);
+      -webkit-text-stroke: 4px var(--savant-text-outline-color);
+      paint-order: stroke fill;
     }
 
     .subtitle {
@@ -305,7 +308,7 @@ export class SavantBreakerTile extends LitElement {
       left: 0;
       right: 0;
       bottom: 58px;
-      top: 136px;
+      top: 126px;
       height: auto;
       min-height: 0;
       margin: 0;
@@ -557,7 +560,7 @@ export class SavantBreakerTile extends LitElement {
       position: absolute;
       top: 50%;
       left: 64px;
-      right: 148px;
+      right: 146px;
       width: auto;
       height: 28px;
       min-height: 28px;
