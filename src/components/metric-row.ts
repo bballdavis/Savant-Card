@@ -5,6 +5,7 @@ import { customElement, property } from "lit/decorators.js";
 export class SavantMetricRow extends LitElement {
   @property({ type: String }) public avg = "--";
   @property({ type: String }) public max = "--";
+  @property({ type: Boolean, reflect: true }) public stacked = false;
 
   protected override render() {
     return html`
@@ -27,7 +28,7 @@ export class SavantMetricRow extends LitElement {
       min-width: 0;
     }
 
-    :host-context(savant-breaker-tile[stacked]) {
+    :host([stacked]) {
       width: 100%;
       height: 100%;
       flex-direction: column;
@@ -42,20 +43,20 @@ export class SavantMetricRow extends LitElement {
       min-width: 48px;
     }
 
-    :host-context(savant-breaker-tile[stacked]) .metric {
+    :host([stacked]) .metric {
       display: flex;
       align-items: baseline;
-      justify-content: center;
+      justify-content: flex-start;
       gap: 6px;
       min-width: 0;
       text-align: left;
     }
 
-    :host-context(savant-breaker-tile[stacked]) .metric:first-child {
+    :host([stacked]) .metric:first-child {
       order: 2;
     }
 
-    :host-context(savant-breaker-tile[stacked]) .metric:nth-child(2) {
+    :host([stacked]) .metric:nth-child(2) {
       order: 1;
     }
 
@@ -67,7 +68,7 @@ export class SavantMetricRow extends LitElement {
       letter-spacing: 0.02em;
     }
 
-    :host-context(savant-breaker-tile[stacked]) span {
+    :host([stacked]) span {
       font-size: 10px;
       width: 24px;
       text-align: right;
@@ -83,7 +84,7 @@ export class SavantMetricRow extends LitElement {
       paint-order: stroke fill;
     }
 
-    :host-context(savant-breaker-tile[stacked]) strong {
+    :host([stacked]) strong {
       font-size: 12px;
     }
   `;

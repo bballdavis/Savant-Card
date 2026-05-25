@@ -52,7 +52,7 @@ export class SavantBreakerTile extends LitElement {
         <span class="power">${this.display.show_current_power ? formatPower(state.powerWatts) : ""}</span>
         <span class="graph">
           ${this.graphLoading
-            ? html`<span class="graph-skeleton"></span>`
+            ? this.renderGraphSkeleton()
             : this.display.show_sparkline
               ? html`<savant-sparkline
                   .points=${this.statistics?.points ?? []}
@@ -66,13 +66,14 @@ export class SavantBreakerTile extends LitElement {
         </span>
         <span class="metrics">
           ${hasStats && (this.display.show_average_power || this.display.show_maximum_power)
-            ? html`<savant-metric-row
+              ? html`<savant-metric-row
                 .avg=${this.display.show_average_power
                   ? formatPower(this.statistics?.averageWatts)
                   : "--"}
                 .max=${this.display.show_maximum_power
                   ? formatPower(this.statistics?.maximumWatts)
                   : "--"}
+                ?stacked=${this.stacked}
               ></savant-metric-row>`
             : ""}
           ${this.display.show_energy
@@ -102,6 +103,18 @@ export class SavantBreakerTile extends LitElement {
       return html`<ha-icon class="entity-icon" .icon=${icon}></ha-icon>`;
     }
     return html`<savant-icon class="entity-icon" icon="flash"></savant-icon>`;
+  }
+
+  private renderGraphSkeleton() {
+    return html`
+      <span class="graph-skeleton" aria-hidden="true">
+        <svg viewBox="0 0 100 36" preserveAspectRatio="none">
+          <path class="graph-skeleton-fill" d="M 0 28 L 12 22 L 26 20 L 42 25 L 56 27 L 68 17 L 82 14 L 100 18 L 100 36 L 0 36 Z"></path>
+          <path class="graph-skeleton-baseline" d="M 0 34 L 100 34"></path>
+          <path class="graph-skeleton-line" d="M 0 28 L 12 22 L 26 20 L 42 25 L 56 27 L 68 17 L 82 14 L 100 18"></path>
+        </svg>
+      </span>
+    `;
   }
 
   private runtimeState() {
@@ -323,9 +336,40 @@ export class SavantBreakerTile extends LitElement {
 
     .graph-skeleton {
       display: block;
-      height: 36px;
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--savant-muted) 18%, transparent);
+      width: 100%;
+      height: 100%;
+      min-height: 32px;
+      color: var(--status-color);
+      opacity: 0.62;
+    }
+
+    .graph-skeleton svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 32px;
+    }
+
+    .graph-skeleton-fill {
+      fill: currentColor;
+      opacity: 0.18;
+    }
+
+    .graph-skeleton-baseline,
+    .graph-skeleton-line {
+      fill: none;
+      stroke: currentColor;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .graph-skeleton-baseline {
+      stroke-width: 1;
+      opacity: 0.34;
+    }
+
+    .graph-skeleton-line {
+      stroke-width: 1.45;
+      opacity: 0.72;
     }
 
     :host-context([density="compact"]) .tile {
@@ -347,7 +391,7 @@ export class SavantBreakerTile extends LitElement {
     }
 
     :host([stacked]) .tile {
-      min-height: 150px;
+      min-height: 128px;
       height: auto;
       display: block;
       padding: 12px 142px 12px 32px;
@@ -387,7 +431,7 @@ export class SavantBreakerTile extends LitElement {
 
     :host([stacked]) .name {
       position: absolute;
-      top: 13px;
+      top: 14px;
       left: 58px;
       right: 136px;
       margin: 0;
@@ -398,7 +442,7 @@ export class SavantBreakerTile extends LitElement {
 
     :host([stacked]) .subtitle {
       position: absolute;
-      top: 31px;
+      top: 32px;
       left: 58px;
       right: 136px;
       margin: 0;
@@ -409,7 +453,7 @@ export class SavantBreakerTile extends LitElement {
 
     :host([stacked]) .power {
       position: absolute;
-      top: 45px;
+      top: 50px;
       left: 32px;
       right: 136px;
       margin: 0;
@@ -421,17 +465,17 @@ export class SavantBreakerTile extends LitElement {
       position: absolute;
       left: 32px;
       right: 136px;
-      bottom: 54px;
-      height: 34px;
-      min-height: 34px;
+      bottom: 12px;
+      height: 68px;
+      min-height: 68px;
       margin: 0;
     }
 
     :host([stacked]) .metrics {
       left: auto;
       right: 16px;
-      top: 35px;
-      bottom: 20px;
+      top: 26px;
+      bottom: 26px;
       width: 116px;
       justify-content: center;
       align-items: stretch;

@@ -31,6 +31,7 @@ export class SavantSparkline extends LitElement {
               <path class="fill-floor" d=${graph.fillPath}></path>
               <path class="fill-base" d=${graph.fillPath}></path>
             `}
+        <path class="baseline" d="M 0 34 L 100 34"></path>
         <path class="line" d=${graph.path}></path>
       </svg>
     `;
@@ -71,6 +72,14 @@ export class SavantSparkline extends LitElement {
       opacity: 0.9;
     }
 
+    .baseline {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+      opacity: 0.36;
+    }
+
     .fill-floor {
       fill: currentColor;
       opacity: 0.04;
@@ -98,13 +107,13 @@ export function normalizePoints(points: SparklinePoint[]):
   const values = points.map((point) => point.value).filter(Number.isFinite);
   if (!values.length) return undefined;
   if (values.length === 1) {
-    const y = yForValue(values[0]!, Math.max(1, values[0]!));
+    const y = yForValue(values[0]!, domainMax(values));
     return {
       path: `M 0 ${y} L 100 ${y}`,
       fillPath: `M 0 ${y} L 100 ${y} L 100 36 L 0 36 Z`,
     };
   }
-  const max = Math.max(1, ...values);
+  const max = domainMax(values);
   const coords = values.map((value, index) => {
     const x = (index / (values.length - 1)) * 100;
     return [x, yForValue(value, max)] as const;
@@ -119,13 +128,17 @@ export function normalizePoints(points: SparklinePoint[]):
 }
 
 function yForValue(value: number, max: number): number {
-  return 35 - (Math.max(0, value) / max) * 30;
+  return 34 - (Math.max(0, value) / max) * 28;
+}
+
+function domainMax(values: number[]): number {
+  return Math.max(1, ...values) * 1.25;
 }
 
 function flatline() {
   return {
-    path: "M 0 35 L 100 35",
-    fillPath: "M 0 35 L 100 35 L 100 36 L 0 36 Z",
+    path: "M 0 34 L 100 34",
+    fillPath: "M 0 34 L 100 34 L 100 36 L 0 36 Z",
   };
 }
 

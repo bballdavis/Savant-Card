@@ -156,7 +156,7 @@ export class SavantBreakerTileSkeleton extends LitElement {
 
       :host([stacked]) {
         aspect-ratio: auto;
-        min-height: 150px;
+        min-height: 128px;
         padding: 12px 142px 12px 32px;
       }
 
@@ -209,7 +209,7 @@ export class SavantBreakerTileSkeleton extends LitElement {
         position: absolute;
         left: 32px;
         right: 136px;
-        bottom: 54px;
+        bottom: 12px;
         width: auto;
         height: 30px;
         margin: 0;
@@ -241,16 +241,16 @@ export class SavantBreakerTileSkeleton extends LitElement {
       }
 
       :host([stacked]) .avg {
-        bottom: 24px;
+        bottom: 26px;
       }
 
       :host([stacked]) .max {
-        top: 39px;
+        top: 26px;
       }
 
       :host([stacked]) .control {
         right: 21px;
-        top: 53px;
+        top: 42px;
         bottom: auto;
       }
     `,
