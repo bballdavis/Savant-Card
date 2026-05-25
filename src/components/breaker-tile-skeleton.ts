@@ -241,11 +241,11 @@ export class SavantBreakerTileSkeleton extends LitElement {
       }
 
       :host([stacked]) .avg {
-        bottom: 26px;
+        bottom: 22px;
       }
 
       :host([stacked]) .max {
-        top: 26px;
+        top: 22px;
       }
 
       :host([stacked]) .control {

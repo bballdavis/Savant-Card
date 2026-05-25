@@ -46,10 +46,11 @@ export class SavantMetricRow extends LitElement {
     :host([stacked]) .metric {
       display: flex;
       align-items: baseline;
-      justify-content: flex-start;
+      justify-content: center;
       gap: 6px;
       min-width: 0;
-      text-align: left;
+      width: 100%;
+      text-align: center;
     }
 
     :host([stacked]) .metric:first-child {
@@ -68,12 +69,6 @@ export class SavantMetricRow extends LitElement {
       letter-spacing: 0.02em;
     }
 
-    :host([stacked]) span {
-      font-size: 10px;
-      width: 24px;
-      text-align: right;
-    }
-
     strong {
       color: var(--savant-tile-fg);
       font-size: 15px;
@@ -84,9 +79,6 @@ export class SavantMetricRow extends LitElement {
       paint-order: stroke fill;
     }
 
-    :host([stacked]) strong {
-      font-size: 12px;
-    }
   `;
 }
 

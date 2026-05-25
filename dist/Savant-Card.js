@@ -780,10 +780,11 @@ z.styles = x`
     :host([stacked]) .metric {
       display: flex;
       align-items: baseline;
-      justify-content: flex-start;
+      justify-content: center;
       gap: 6px;
       min-width: 0;
-      text-align: left;
+      width: 100%;
+      text-align: center;
     }
 
     :host([stacked]) .metric:first-child {
@@ -802,12 +803,6 @@ z.styles = x`
       letter-spacing: 0.02em;
     }
 
-    :host([stacked]) span {
-      font-size: 10px;
-      width: 24px;
-      text-align: right;
-    }
-
     strong {
       color: var(--savant-tile-fg);
       font-size: 15px;
@@ -818,9 +813,6 @@ z.styles = x`
       paint-order: stroke fill;
     }
 
-    :host([stacked]) strong {
-      font-size: 12px;
-    }
   `;
 ct([
   u({ type: String })
@@ -1433,8 +1425,8 @@ _.styles = x`
     :host([stacked]) .metrics {
       left: auto;
       right: 16px;
-      top: 26px;
-      bottom: 26px;
+      top: 22px;
+      bottom: 22px;
       width: 116px;
       justify-content: center;
       align-items: stretch;
@@ -1767,11 +1759,11 @@ ot.styles = [
       }
 
       :host([stacked]) .avg {
-        bottom: 26px;
+        bottom: 22px;
       }
 
       :host([stacked]) .max {
-        top: 26px;
+        top: 22px;
       }
 
       :host([stacked]) .control {
