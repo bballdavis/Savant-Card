@@ -9,6 +9,7 @@ const ICONS: Record<string, string> = {
     "M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.49 21.49 20 15.5 14Zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14Z",
   sort_amount_down:
     "M3 7h10v2H3V7m0 4h7v2H3v-2m0 4h4v2H3v-2m14-7 4 4h-3v6h-2v-6h-3l4-4Z",
+  minimize_2: "",
 };
 
 @customElement("savant-icon")
@@ -16,6 +17,16 @@ export class SavantIcon extends LitElement {
   @property({ type: String }) public icon = "flash";
 
   protected override render() {
+    if (this.icon === "minimize_2") {
+      return svg`
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 10h-4v-4" />
+          <path d="M20 4l-6 6" />
+          <path d="M6 14h4v4" />
+          <path d="M10 14l-6 6" />
+        </svg>
+      `;
+    }
     return html`
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         ${svg`<path d=${ICONS[this.icon] ?? ICONS.flash}></path>`}

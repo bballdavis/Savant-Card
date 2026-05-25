@@ -13,7 +13,7 @@ import { normalizeConfig, resolveBreakerDisplay } from "../config/normalize-conf
 import { sharedStyles } from "../styles/shared-styles";
 import type { DiscoveredBreaker } from "../types/breaker";
 import type { HomeAssistant } from "../types/home-assistant";
-import type { PartialSavantBreakerBoardConfig, SavantBreakerBoardConfig, SortBy } from "../types/config";
+import type { MobileView, PartialSavantBreakerBoardConfig, SavantBreakerBoardConfig, SortBy } from "../types/config";
 import type { BreakerStatistics } from "../types/statistics";
 import { parseNumber } from "../utilities/format-power";
 
@@ -32,6 +32,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   @state() private searchOpen = false;
   @state() private searchQuery = "";
   @state() private runtimeSortBy: SortBy | undefined;
+  @state() private runtimeMobileView: MobileView | undefined;
   private discovery = new BreakerDiscoveryService();
   private statistics = new StatisticsManager();
   private discoveryKey = "";
@@ -42,8 +43,9 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   public setConfig(config: PartialSavantBreakerBoardConfig): void {
     this.config = normalizeConfig(config);
     this.runtimeSortBy = this.loadPersistedSort() ?? this.config.layout.sort_by;
+    this.runtimeMobileView = this.loadPersistedMobileView() ?? this.config.layout.mobile_view;
     this.setAttribute("density", this.config.layout.density);
-    this.setAttribute("mobile-view", this.config.layout.mobile_view);
+    this.setAttribute("mobile-view", this.effectiveMobileView());
     this.discoveryKey = "";
   }
 
@@ -150,11 +152,11 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
                 <savant-icon icon="sort_amount_down" aria-hidden="true"></savant-icon>
                 <span class="sr-only">Sort</span>
               </button>
-              ${this.sortMenuOpen
-                ? html`<div class="tool-popover">
-                    ${SORT_OPTIONS.map(
-                      ({ value, label }) => html`
-                        <button
+            ${this.sortMenuOpen
+              ? html`<div class="tool-popover">
+                  ${SORT_OPTIONS.map(
+                    ({ value, label }) => html`
+                      <button
                           class=${this.effectiveSortBy() === value ? "menu-option selected" : "menu-option"}
                           type="button"
                           @click=${() => this.setRuntimeSort(value)}
@@ -162,15 +164,25 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
                           ${label}
                         </button>
                       `,
-                    )}
-                  </div>`
-                : nothing}
-            </div>
-            <div class="tool-wrap">
-              <button
-                class=${this.searchOpen ? "chip-tool active" : "chip-tool"}
+                  )}
+                </div>`
+              : nothing}
+          </div>
+          ${this.stacked
+            ? html`<button
+                class=${this.effectiveMobileView() === "ultra_compact" ? "chip-tool active" : "chip-tool"}
                 type="button"
-                @click=${() => (this.searchOpen = !this.searchOpen)}
+                @click=${() => this.toggleMobileView()}
+              >
+                <savant-icon icon="minimize_2" aria-hidden="true"></savant-icon>
+                <span class="sr-only">Toggle ultra-compact mobile view</span>
+              </button>`
+            : nothing}
+          <div class="tool-wrap">
+            <button
+              class=${this.searchOpen ? "chip-tool active" : "chip-tool"}
+              type="button"
+              @click=${() => (this.searchOpen = !this.searchOpen)}
               >
                 <savant-icon icon="search" aria-hidden="true"></savant-icon>
                 <span class="sr-only">Search</span>
@@ -216,7 +228,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
                 .display=${display}
                 .statistics=${stat}
                 ?stacked=${this.stacked}
-                .mobileLayout=${this.config.layout.mobile_view}
+                .mobileLayout=${this.effectiveMobileView()}
                 .graphLoading=${Boolean(powerEntity && !stat)}
                 .pending=${this.pendingSwitches.has(breaker.id)}
                 .error=${this.toggleErrors.get(breaker.id) ?? ""}
@@ -302,10 +314,21 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
     return this.runtimeSortBy ?? this.config.layout.sort_by;
   }
 
+  private effectiveMobileView(): MobileView {
+    return this.runtimeMobileView ?? this.config.layout.mobile_view;
+  }
+
   private setRuntimeSort(sortBy: SortBy): void {
     this.runtimeSortBy = sortBy;
     this.sortMenuOpen = false;
     window.localStorage?.setItem(this.persistedSortKey(), sortBy);
+  }
+
+  private toggleMobileView(): void {
+    const next = this.effectiveMobileView() === "ultra_compact" ? "standard" : "ultra_compact";
+    this.runtimeMobileView = next;
+    this.setAttribute("mobile-view", next);
+    window.localStorage?.setItem(this.persistedMobileViewKey(), next);
   }
 
   private loadPersistedSort(): SortBy | undefined {
@@ -313,8 +336,17 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
     return SORT_OPTIONS.some((option) => option.value === value) ? value ?? undefined : undefined;
   }
 
+  private loadPersistedMobileView(): MobileView | undefined {
+    const value = window.localStorage?.getItem(this.persistedMobileViewKey()) as MobileView | null;
+    return value === "standard" || value === "ultra_compact" ? value : undefined;
+  }
+
   private persistedSortKey(): string {
     return `savant-breaker-board-sort:${this.config.title ?? "default"}`;
+  }
+
+  private persistedMobileViewKey(): string {
+    return `savant-breaker-board-mobile-view:${this.config.title ?? "default"}`;
   }
 
   private handleToggle = async (event: CustomEvent<{ breakerId: string }>): Promise<void> => {
