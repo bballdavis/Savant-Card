@@ -44,12 +44,21 @@ export class SavantMetricRow extends LitElement {
     }
 
     :host([stacked]) .metric {
-      display: flex;
+      display: grid;
+      grid-template-columns: 36px 44px;
       align-items: baseline;
-      justify-content: center;
+      justify-content: start;
       gap: 6px;
       min-width: 0;
       width: 100%;
+      text-align: center;
+    }
+
+    :host([stacked]) span {
+      text-align: right;
+    }
+
+    :host([stacked]) strong {
       text-align: center;
     }
 

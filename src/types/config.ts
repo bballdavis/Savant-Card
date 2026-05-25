@@ -1,5 +1,5 @@
 export type GroupBy = "none" | "panel" | "area" | "panel_then_area";
-export type SortBy = "circuit_number" | "name" | "current_power_descending" | "manual";
+export type SortBy = "circuit_number" | "name" | "current_power_descending" | "highest_usage" | "manual";
 export type Density = "comfortable" | "compact";
 export type GraphPeriod = "1h" | "6h" | "24h" | "7d";
 export type ControlMode = "hidden" | "hold" | "hold_confirm_off";

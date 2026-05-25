@@ -43,7 +43,7 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
           ${this.select("Group", this.config.layout.group_by, ["none", "panel", "area", "panel_then_area"], (value) =>
             this.patch({ layout: { ...this.config.layout, group_by: value as any } }),
           )}
-          ${this.select("Sort", this.config.layout.sort_by, ["circuit_number", "name", "current_power_descending", "manual"], (value) =>
+          ${this.select("Sort", this.config.layout.sort_by, ["circuit_number", "name", "current_power_descending", "highest_usage", "manual"], (value) =>
             this.patch({ layout: { ...this.config.layout, sort_by: value as any } }),
           )}
           ${this.select("Density", this.config.layout.density, ["comfortable", "compact"], (value) =>

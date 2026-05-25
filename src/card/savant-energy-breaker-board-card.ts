@@ -31,10 +31,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   private statistics = new StatisticsManager();
   private discoveryKey = "";
   private resizeObserver?: ResizeObserver;
-  private statsRefreshRunning = false;
-  private statsRefreshQueued = false;
   private statsRefreshToken = 0;
-  private readonly statsRequestSpacingMs = 180;
 
   public setConfig(config: PartialSavantBreakerBoardConfig): void {
     this.config = normalizeConfig(config);
@@ -75,7 +72,13 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
 
   protected override firstUpdated(): void {
     this.resizeObserver = new ResizeObserver(([entry]) => {
-      this.stacked = entry ? entry.contentRect.width <= 540 : false;
+      if (!entry) {
+        this.stacked = false;
+        return;
+      }
+      const width = entry.contentRect.width;
+      if (this.stacked && width >= 560) this.stacked = false;
+      if (!this.stacked && width <= 520) this.stacked = true;
     });
     this.resizeObserver.observe(this);
   }
@@ -152,7 +155,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
       manual: this.config.manual_breakers,
     });
     if (key === this.discoveryKey && this.breakers.length) {
-      this.scheduleStatisticsRefresh();
+      void this.loadStatistics();
       return;
     }
     this.loading = true;
@@ -162,25 +165,15 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
       this.discoveryKey = key;
       this.loading = false;
       this.stats = new Map();
-      this.scheduleStatisticsRefresh();
+      void this.loadStatistics();
     } catch (error) {
       this.error = error instanceof Error ? error.message : "Discovery failed";
       this.loading = false;
     }
   }
 
-  private scheduleStatisticsRefresh(): void {
-    if (this.statsRefreshRunning) {
-      this.statsRefreshQueued = true;
-      return;
-    }
-    void this.loadStatisticsSequentially();
-  }
-
-  private async loadStatisticsSequentially(): Promise<void> {
+  private async loadStatistics(): Promise<void> {
     if (!this.hass) return;
-    this.statsRefreshRunning = true;
-    this.statsRefreshQueued = false;
     const token = ++this.statsRefreshToken;
     const entityIds = [
       ...new Set(
@@ -189,26 +182,19 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
           .filter((entityId): entityId is string => Boolean(entityId)),
       ),
     ];
-
-    try {
-      for (const entityId of entityIds) {
-        if (token !== this.statsRefreshToken || !this.hass) return;
-        const stat = await this.statistics.getStatistics(
-          this.hass,
+    const entries = await Promise.all(
+      entityIds.map(async (entityId) => [
+        entityId,
+        await this.statistics.getStatistics(
+          this.hass!,
           entityId,
           this.config.graph.period,
           this.config.graph.refresh_interval_seconds,
-        );
-        if (token !== this.statsRefreshToken) return;
-        this.stats = new Map(this.stats).set(entityId, stat);
-        if (entityIds.indexOf(entityId) < entityIds.length - 1) {
-          await sleep(this.statsRequestSpacingMs);
-        }
-      }
-    } finally {
-      this.statsRefreshRunning = false;
-      if (this.statsRefreshQueued) this.scheduleStatisticsRefresh();
-    }
+        ),
+      ] as const),
+    );
+    if (token !== this.statsRefreshToken) return;
+    this.stats = new Map(entries);
   }
 
   private visibleBreakers(): DiscoveredBreaker[] {
@@ -217,6 +203,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
       this.breakers.filter((breaker) => !excluded.has(breaker.id)),
       this.config,
       this.hass,
+      this.stats,
     );
   }
 
@@ -252,14 +239,11 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   ];
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
-}
-
 function sortBreakers(
   breakers: DiscoveredBreaker[],
   config: SavantBreakerBoardConfig,
   hass?: HomeAssistant,
+  stats = new Map<string, BreakerStatistics>(),
 ): DiscoveredBreaker[] {
   return [...breakers].sort((a, b) => {
     if (config.layout.sort_by === "name") return a.name.localeCompare(b.name);
@@ -268,9 +252,24 @@ function sortBreakers(
       const bv = parseNumber(b.entities.power ? hass?.states[b.entities.power]?.state : undefined) ?? -Infinity;
       return bv - av;
     }
+    if (config.layout.sort_by === "highest_usage") {
+      const av = usageSortValue(a, stats, hass);
+      const bv = usageSortValue(b, stats, hass);
+      return bv - av || a.name.localeCompare(b.name);
+    }
     if (config.layout.sort_by === "manual") return 0;
     return (a.circuitNumber ?? 9999) - (b.circuitNumber ?? 9999) || a.name.localeCompare(b.name);
   });
+}
+
+function usageSortValue(
+  breaker: DiscoveredBreaker,
+  stats: Map<string, BreakerStatistics>,
+  hass?: HomeAssistant,
+): number {
+  const powerEntity = breaker.entities.power;
+  if (!powerEntity) return -Infinity;
+  return stats.get(powerEntity)?.averageWatts ?? parseNumber(hass?.states[powerEntity]?.state) ?? -Infinity;
 }
 
 function groupBreakers(

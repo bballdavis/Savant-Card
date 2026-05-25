@@ -51,6 +51,14 @@ describe("SavantEnergyBreakerBoardCard.getConfigForm", () => {
     );
   });
 
+  it("includes highest usage in the sort selector", () => {
+    const form = SavantEnergyBreakerBoardCard.getConfigForm();
+    const sortBy = collectSchema(form.schema).find((entry) => entry.name === "sort_by");
+    const values = sortBy?.selector.select.options.map((option: { value: string }) => option.value);
+
+    expect(values).toContain("highest_usage");
+  });
+
   it("makes manual fallback mappings editable without YAML", () => {
     const form = SavantEnergyBreakerBoardCard.getConfigForm();
     const manualBreakers = collectSchema(form.schema).find((entry) => entry.name === "manual_breakers");

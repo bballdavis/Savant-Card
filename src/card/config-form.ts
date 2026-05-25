@@ -20,6 +20,8 @@ const LABELS: Record<string, string> = {
   layout: "Layout",
   group_by: "Group by",
   sort_by: "Sort by",
+  current_power_descending: "Highest current power",
+  highest_usage: "Highest usage",
   density: "Density",
   display: "Default tile details",
   show_current_power: "Current power",
@@ -82,7 +84,7 @@ export function getSavantBreakerBoardConfigForm(): LovelaceCardConfigForm {
         title: "Layout",
         schema: [
           select("group_by", ["none", "panel", "area", "panel_then_area"]),
-          select("sort_by", ["circuit_number", "name", "current_power_descending", "manual"]),
+          select("sort_by", ["circuit_number", "name", "current_power_descending", "highest_usage", "manual"]),
           select("density", ["comfortable", "compact"]),
         ],
       },

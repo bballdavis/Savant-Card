@@ -217,9 +217,9 @@ export class SavantBreakerTileSkeleton extends LitElement {
 
       :host([stacked]) .avg,
       :host([stacked]) .max {
-        right: 16px;
+        right: 21px;
         left: auto;
-        width: 76px;
+        width: 86px;
         height: 12px;
       }
 
@@ -227,7 +227,7 @@ export class SavantBreakerTileSkeleton extends LitElement {
       :host([stacked]) .max::before {
         top: 2px;
         left: 0;
-        width: 22px;
+        width: 34px;
         height: 8px;
       }
 

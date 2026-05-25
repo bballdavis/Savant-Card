@@ -54,12 +54,6 @@ export const sharedStyles = css`
     grid-template-columns: 1fr;
   }
 
-  @container (max-width: 540px) {
-    .board-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
   .group-title {
     grid-column: 1 / -1;
     margin: 8px 0 0;
