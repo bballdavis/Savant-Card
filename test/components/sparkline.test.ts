@@ -8,14 +8,14 @@ describe("normalizePoints", () => {
   });
 
   it("handles flat and missing data", () => {
-    expect(normalizePoints([{ start: 1, value: 0 }, { start: 2, value: 0 }])?.path).toContain("27.00");
+    expect(normalizePoints([{ start: 1, value: 0 }, { start: 2, value: 0 }])?.path).toContain("33.00");
     expect(normalizePoints([])).toBeUndefined();
   });
 
   it("uses zero as the visual baseline", () => {
     const normalized = normalizePoints([{ start: 1, value: 0 }, { start: 2, value: 100 }]);
 
-    expect(normalized?.path).toBe("M 0.00 27.00 L 100.00 9.40");
+    expect(normalized?.path).toBe("M 0.00 33.00 L 100.00 10.60");
   });
 
   it("draws zero runs as a visible value line", () => {
@@ -25,7 +25,7 @@ describe("normalizePoints", () => {
       { start: 3, value: 100 },
     ]);
 
-    expect(normalized?.path).toBe("M 0.00 27.00 L 50.00 27.00 M 50.00 27.00 L 100.00 9.40");
+    expect(normalized?.path).toBe("M 0.00 33.00 L 50.00 33.00 M 50.00 33.00 L 100.00 10.60");
   });
 
   it("does not fill zero-only stretches", () => {
@@ -36,7 +36,7 @@ describe("normalizePoints", () => {
         { start: 2, value: 0 },
         { start: 3, value: 100 },
       ])?.fillPath,
-    ).toBe("M 50.00 27.00 L 100.00 9.40 L 100.00 36 L 50.00 36 Z");
+    ).toBe("M 50.00 33.00 L 100.00 10.60 L 100.00 36 L 50.00 36 Z");
   });
 
   it("keeps low positive values above the zero axis on large domains", () => {
@@ -46,7 +46,7 @@ describe("normalizePoints", () => {
         { start: 2, value: 10 },
         { start: 3, value: 1000 },
       ])?.path,
-    ).toBe("M 0.00 27.00 L 50.00 26.82 M 50.00 26.82 L 100.00 9.40");
+    ).toBe("M 0.00 33.00 L 50.00 32.78 M 50.00 32.78 L 100.00 10.60");
   });
 
   it("keeps every line coordinate inside the visible plot area while fill reaches the bottom", () => {
@@ -59,14 +59,14 @@ describe("normalizePoints", () => {
       Number(match[1]),
     );
 
-    expect(Math.max(...yValues)).toBeLessThanOrEqual(27);
+    expect(Math.max(...yValues)).toBeLessThanOrEqual(33);
     expect(Math.min(...yValues)).toBeGreaterThanOrEqual(5);
     expect(normalized?.fillPath).toContain(" 36");
   });
 
   it("raises zero-only data enough to remain visible", () => {
     expect(normalizePoints([{ start: 1, value: 0 }, { start: 2, value: 0 }])?.path).toBe(
-      "M 0.00 27.00 L 100.00 27.00",
+      "M 0.00 33.00 L 100.00 33.00",
     );
   });
 

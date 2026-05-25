@@ -30,6 +30,8 @@ export class SavantBreakerTile extends LitElement {
     const visual = this.visualState(state.powerWatts, state.switchState, state.available);
     const ultraCompact = this.stacked && this.mobileLayout === "ultra_compact";
     const subtitle = this.display.show_area ? this.breaker.areaName : undefined;
+    const graphPoints =
+      visual === "off" ? zeroGraphPoints(this.statistics?.points.length) : this.statistics?.points ?? [];
     const hasHistory = Boolean(this.statistics?.points.length);
     const hasStats =
       !ultraCompact &&
@@ -55,12 +57,12 @@ export class SavantBreakerTile extends LitElement {
         ${subtitle && !ultraCompact ? html`<span class="subtitle">${subtitle}</span>` : ""}
         <span class="power">${this.display.show_current_power ? formatPower(state.powerWatts) : ""}</span>
         <span class="graph">
-          ${this.graphLoading
+          ${this.graphLoading && visual !== "off"
             ? this.renderGraphSkeleton()
             : this.display.show_sparkline
               ? html`<savant-sparkline
-                  .points=${this.statistics?.points ?? []}
-                  .state=${!hasHistory || visual === "unavailable"
+                  .points=${graphPoints}
+                  .state=${!hasHistory || visual === "unavailable" || visual === "off"
                       ? "muted"
                       : visual === "high_load"
                         ? "warning"
@@ -210,6 +212,10 @@ export class SavantBreakerTile extends LitElement {
       --status-color: var(--savant-disabled);
     }
 
+    .tile.off {
+      --status-color: var(--savant-error);
+    }
+
     .tile.error {
       --status-color: var(--savant-error);
     }
@@ -287,8 +293,7 @@ export class SavantBreakerTile extends LitElement {
       z-index: 1;
     }
 
-    .tile.on .power,
-    .tile.off .power {
+    .tile.on .power {
       color: var(--savant-tile-fg);
     }
 
@@ -334,6 +339,7 @@ export class SavantBreakerTile extends LitElement {
       right: 14px;
       bottom: 14px;
       z-index: 3;
+      --control-color: var(--status-color);
     }
 
     .mobile-bar {
@@ -513,10 +519,11 @@ export class SavantBreakerTile extends LitElement {
     :host([stacked][mobile-layout="ultra_compact"]) .name {
       top: 50%;
       left: 18px;
-      right: 271px;
+      right: 150px;
       transform: translateY(-50%);
       font-size: 14px;
       line-height: 1.1;
+      z-index: 2;
     }
 
     :host([stacked][mobile-layout="ultra_compact"]) .power {
@@ -528,6 +535,7 @@ export class SavantBreakerTile extends LitElement {
       font-size: 18px;
       text-align: right;
       color: var(--savant-tile-fg);
+      z-index: 2;
     }
 
     :host([stacked][mobile-layout="ultra_compact"]) .graph,
@@ -541,19 +549,20 @@ export class SavantBreakerTile extends LitElement {
       display: block;
       position: absolute;
       top: 50%;
-      left: auto;
-      right: 150px;
-      width: 115px;
-      height: 22px;
-      min-height: 22px;
+      left: 86px;
+      right: 74px;
+      width: auto;
+      height: 28px;
+      min-height: 28px;
       transform: translateY(-50%);
+      z-index: 0;
     }
 
     :host([stacked][mobile-layout="ultra_compact"]) savant-sparkline,
     :host([stacked][mobile-layout="ultra_compact"]) .graph-skeleton {
-      height: 22px;
-      min-height: 22px;
-      max-height: 22px;
+      height: 28px;
+      min-height: 28px;
+      max-height: 28px;
       opacity: 0.95;
     }
 
@@ -578,6 +587,13 @@ function stateLabel(visual: string, switchState?: string): string {
   if (visual === "unavailable") return "Unavailable";
   if (switchState === "off" || visual === "off") return "Off";
   return "On";
+}
+
+function zeroGraphPoints(count = 2) {
+  return Array.from({ length: Math.max(2, count) }, (_, index) => ({
+    start: index,
+    value: 0,
+  }));
 }
 
 declare global {

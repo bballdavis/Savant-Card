@@ -145,7 +145,7 @@ function zeroLine(count: number) {
 }
 
 const TOP_Y = 5;
-const ZERO_Y = 27;
+const ZERO_Y = 33;
 
 function linePath(coords: Array<readonly [number, number, number]>): string {
   if (coords.every(([, , value]) => value === 0)) {
