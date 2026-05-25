@@ -52,7 +52,7 @@ describe("breaker tile component", () => {
 
     expect(tile.shadowRoot?.querySelector(".graph-skeleton svg")).toBeTruthy();
     expect(tile.shadowRoot?.querySelector(".graph-skeleton-line")).toBeTruthy();
-    expect(tile.shadowRoot?.querySelector(".graph-skeleton-baseline")).toBeTruthy();
+    expect(tile.shadowRoot?.querySelector(".graph-skeleton-baseline")).toBeNull();
     tile.remove();
   });
 });

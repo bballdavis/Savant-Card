@@ -110,7 +110,6 @@ export class SavantBreakerTile extends LitElement {
       <span class="graph-skeleton" aria-hidden="true">
         <svg viewBox="0 0 100 36" preserveAspectRatio="none">
           <path class="graph-skeleton-fill" d="M 0 28 L 12 22 L 26 20 L 42 25 L 56 27 L 68 17 L 82 14 L 100 18 L 100 36 L 0 36 Z"></path>
-          <path class="graph-skeleton-baseline" d="M 0 34 L 100 34"></path>
           <path class="graph-skeleton-line" d="M 0 28 L 12 22 L 26 20 L 42 25 L 56 27 L 68 17 L 82 14 L 100 18"></path>
         </svg>
       </span>
@@ -290,11 +289,14 @@ export class SavantBreakerTile extends LitElement {
     }
 
     .graph {
-      align-self: end;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 60px;
+      height: 58px;
       min-height: 58px;
-      margin: 2px -16px 52px;
+      margin: 0;
       pointer-events: none;
-      position: relative;
       z-index: 0;
     }
 
@@ -355,16 +357,10 @@ export class SavantBreakerTile extends LitElement {
       opacity: 0.18;
     }
 
-    .graph-skeleton-baseline,
     .graph-skeleton-line {
       fill: none;
       stroke: currentColor;
       vector-effect: non-scaling-stroke;
-    }
-
-    .graph-skeleton-baseline {
-      stroke-width: 1;
-      opacity: 0.34;
     }
 
     .graph-skeleton-line {
@@ -382,8 +378,9 @@ export class SavantBreakerTile extends LitElement {
     }
 
     :host-context([density="compact"]) .graph {
+      height: 32px;
       min-height: 32px;
-      margin-bottom: 50px;
+      bottom: 50px;
     }
 
     :host([stacked]) {

@@ -31,6 +31,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   private statistics = new StatisticsManager();
   private discoveryKey = "";
   private resizeObserver?: ResizeObserver;
+  private resizeTarget?: Element;
   private statsRefreshToken = 0;
 
   public setConfig(config: PartialSavantBreakerBoardConfig): void {
@@ -76,11 +77,9 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
         this.stacked = false;
         return;
       }
-      const width = entry.contentRect.width;
-      if (this.stacked && width >= 560) this.stacked = false;
-      if (!this.stacked && width <= 520) this.stacked = true;
+      this.updateStackedLayout(entry.contentRect.width);
     });
-    this.resizeObserver.observe(this);
+    this.observeLayoutTarget();
   }
 
   public override disconnectedCallback(): void {
@@ -89,7 +88,24 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   }
 
   protected override updated(changed: Map<string, unknown>): void {
+    this.observeLayoutTarget();
     if (changed.has("hass") || changed.has("config")) void this.ensureDiscovered();
+  }
+
+  private observeLayoutTarget(): void {
+    if (!this.resizeObserver) return;
+    const target = this.renderRoot.querySelector(".board-grid") ?? this.renderRoot.querySelector("ha-card") ?? this;
+    if (target === this.resizeTarget) return;
+    if (this.resizeTarget) this.resizeObserver.unobserve(this.resizeTarget);
+    this.resizeTarget = target;
+    this.resizeObserver.observe(target);
+    this.updateStackedLayout(target.getBoundingClientRect().width);
+  }
+
+  private updateStackedLayout(width: number): void {
+    if (!Number.isFinite(width) || width <= 0) return;
+    if (this.stacked && width >= 560) this.stacked = false;
+    if (!this.stacked && width <= 520) this.stacked = true;
   }
 
   protected override render() {

@@ -31,7 +31,6 @@ export class SavantSparkline extends LitElement {
               <path class="fill-floor" d=${graph.fillPath}></path>
               <path class="fill-base" d=${graph.fillPath}></path>
             `}
-        <path class="baseline" d="M 0 34 L 100 34"></path>
         <path class="line" d=${graph.path}></path>
       </svg>
     `;
@@ -70,14 +69,6 @@ export class SavantSparkline extends LitElement {
       stroke-width: 1.45;
       vector-effect: non-scaling-stroke;
       opacity: 0.9;
-    }
-
-    .baseline {
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1;
-      vector-effect: non-scaling-stroke;
-      opacity: 0.36;
     }
 
     .fill-floor {
