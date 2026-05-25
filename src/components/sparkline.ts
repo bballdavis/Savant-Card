@@ -28,7 +28,6 @@ export class SavantSparkline extends LitElement {
         ${noHistory
           ? ""
           : svg`
-              <path class="fill-floor" d=${graph.fillPath}></path>
               <path class="fill-base" d=${graph.fillPath}></path>
             `}
         <path class="line" d=${graph.path}></path>
@@ -71,11 +70,6 @@ export class SavantSparkline extends LitElement {
       opacity: 0.9;
     }
 
-    .fill-floor {
-      fill: currentColor;
-      opacity: 0.04;
-    }
-
     .fill-base {
       fill: url("#savant-sparkline-area");
       opacity: 1;
@@ -107,19 +101,22 @@ export function normalizePoints(points: SparklinePoint[]):
   const max = domainMax(values);
   const coords = values.map((value, index) => {
     const x = (index / (values.length - 1)) * 100;
-    return [x, yForValue(value, max)] as const;
+    return [x, yForValue(value, max), Math.max(0, value)] as const;
   });
-  const path = coords.map(([x, y], index) => `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`).join(" ");
+  const path = linePath(coords);
   const first = coords[0]!;
   const last = coords[coords.length - 1]!;
+  const fillPath = coords
+    .map(([x, y], index) => `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`)
+    .join(" ");
   return {
     path,
-    fillPath: `${path} L ${last[0].toFixed(2)} 36 L ${first[0].toFixed(2)} 36 Z`,
+    fillPath: `${fillPath} L ${last[0].toFixed(2)} 36 L ${first[0].toFixed(2)} 36 Z`,
   };
 }
 
 function yForValue(value: number, max: number): number {
-  return 34 - (Math.max(0, value) / max) * 28;
+  return 32 - (Math.max(0, value) / max) * 28;
 }
 
 function domainMax(values: number[]): number {
@@ -128,9 +125,24 @@ function domainMax(values: number[]): number {
 
 function flatline() {
   return {
-    path: "M 0 34 L 100 34",
-    fillPath: "M 0 34 L 100 34 L 100 36 L 0 36 Z",
+    path: "M 0 32 L 100 32",
+    fillPath: "M 0 32 L 100 32 L 100 36 L 0 36 Z",
   };
+}
+
+function linePath(coords: Array<readonly [number, number, number]>): string {
+  if (coords.every(([, , value]) => value === 0)) {
+    return coords.map(([x, y], index) => `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`).join(" ");
+  }
+
+  const segments: string[] = [];
+  for (let index = 1; index < coords.length; index += 1) {
+    const previous = coords[index - 1]!;
+    const current = coords[index]!;
+    if (previous[2] === 0 && current[2] === 0) continue;
+    segments.push(`M ${previous[0].toFixed(2)} ${previous[1].toFixed(2)} L ${current[0].toFixed(2)} ${current[1].toFixed(2)}`);
+  }
+  return segments.join(" ");
 }
 
 declare global {

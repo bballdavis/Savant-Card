@@ -461,7 +461,7 @@ export class SavantBreakerTile extends LitElement {
     :host([stacked]) .graph {
       position: absolute;
       left: 32px;
-      right: 136px;
+      right: 124px;
       bottom: 12px;
       height: 68px;
       min-height: 68px;
@@ -471,8 +471,8 @@ export class SavantBreakerTile extends LitElement {
     :host([stacked]) .metrics {
       left: auto;
       right: 21px;
-      top: 22px;
-      bottom: 22px;
+      top: 12px;
+      bottom: 12px;
       width: 86px;
       justify-content: center;
       align-items: stretch;
