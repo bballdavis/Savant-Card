@@ -104,4 +104,54 @@ describe("breaker tile component", () => {
     expect(sparkline.shadowRoot?.querySelector(".line")?.getAttribute("d")).toBe("M 0.00 33.00 L 100.00 33.00");
     tile.remove();
   });
+
+  it("keeps the control status green while high load only colors the chart", async () => {
+    const tile = document.createElement("savant-breaker-tile") as any;
+    tile.warningLoadThresholdWatts = 1000;
+    tile.highLoadThresholdWatts = 2000;
+    tile.breaker = {
+      id: "breaker-a",
+      name: "Breaker A",
+      controllable: true,
+      entities: { power: "sensor.breaker_a_power", switch: "switch.breaker_a" },
+      available: true,
+      discoveryConfidence: "high",
+    };
+    tile.display = {
+      label: "Breaker A",
+      show_current_power: true,
+      show_average_power: true,
+      show_maximum_power: true,
+      show_energy: false,
+      show_sparkline: true,
+      show_icon: true,
+      show_state: true,
+      show_controls: true,
+      show_area: false,
+      show_circuit_number: false,
+      control_mode: "hold",
+    };
+    tile.statistics = {
+      entityId: "sensor.breaker_a_power",
+      period: "24h",
+      points: [{ start: 1, value: 2100 }, { start: 2, value: 2500 }],
+      averageWatts: 2300,
+      maximumWatts: 2500,
+      loading: false,
+    };
+    tile.hass = {
+      states: {
+        "sensor.breaker_a_power": { entity_id: "sensor.breaker_a_power", state: "2500", attributes: {} },
+        "switch.breaker_a": { entity_id: "switch.breaker_a", state: "on", attributes: {} },
+      },
+    };
+    document.body.append(tile);
+    await tile.updateComplete;
+    const sparkline = tile.shadowRoot?.querySelector("savant-sparkline") as any;
+
+    expect(tile.shadowRoot?.querySelector(".tile")?.className).toContain("on");
+    expect(tile.shadowRoot?.querySelector(".tile")?.className).not.toContain("high_load");
+    expect(sparkline.getAttribute("state")).toBe("warning");
+    tile.remove();
+  });
 });

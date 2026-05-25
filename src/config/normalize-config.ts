@@ -23,12 +23,19 @@ export function normalizeConfig(
   merged.display.show_title = merged.display.show_title !== false;
   if (!PERIODS.has(merged.graph.period)) merged.graph.period = DEFAULT_CONFIG.graph.period;
   merged.graph.refresh_interval_seconds = Math.max(30, Number(merged.graph.refresh_interval_seconds) || 300);
+  const warningLoadThreshold = Number(merged.controls.warning_load_threshold_watts);
+  merged.controls.warning_load_threshold_watts = Math.max(
+    0,
+    Number.isFinite(warningLoadThreshold)
+      ? warningLoadThreshold
+      : DEFAULT_CONFIG.controls.warning_load_threshold_watts || 1000,
+  );
   const highLoadThreshold = Number(merged.controls.high_load_threshold_watts);
   merged.controls.high_load_threshold_watts = Math.max(
     0,
     Number.isFinite(highLoadThreshold)
       ? highLoadThreshold
-      : DEFAULT_CONFIG.controls.high_load_threshold_watts || 3500,
+      : DEFAULT_CONFIG.controls.high_load_threshold_watts || 2000,
   );
   merged.excluded_breakers = Array.isArray(merged.excluded_breakers)
     ? [...new Set(merged.excluded_breakers)]

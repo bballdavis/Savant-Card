@@ -8,6 +8,7 @@ export const sharedStyles = css`
     --savant-tile-fg: var(--primary-text-color, #f5f7f8);
     --savant-muted: var(--secondary-text-color, #a9b0b4);
     --savant-success: var(--success-color, #7acb54);
+    --savant-caution: var(--savant-caution-color, #f5cc4d);
     --savant-warning: var(--warning-color, #ff8f22);
     --savant-error: var(--error-color, #f05246);
     --savant-disabled: var(--disabled-text-color, #8d9499);

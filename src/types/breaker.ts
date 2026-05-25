@@ -40,7 +40,6 @@ export interface BreakerRuntimeState {
 export type BreakerVisualState =
   | "on"
   | "off"
-  | "high_load"
   | "unavailable"
   | "pending"
   | "error";

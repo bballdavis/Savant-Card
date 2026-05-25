@@ -5,7 +5,7 @@ import type { SparklinePoint } from "../types/statistics";
 @customElement("savant-sparkline")
 export class SavantSparkline extends LitElement {
   @property({ attribute: false }) public points: SparklinePoint[] = [];
-  @property({ type: String, reflect: true }) public state: "normal" | "warning" | "muted" = "normal";
+  @property({ type: String, reflect: true }) public state: "normal" | "caution" | "warning" | "muted" = "normal";
 
   protected override render() {
     const normalized = normalizePoints(this.points);
@@ -48,6 +48,11 @@ export class SavantSparkline extends LitElement {
     :host([state="warning"]) {
       color: var(--savant-warning);
       --sparkline-fill-color: var(--savant-warning);
+    }
+
+    :host([state="caution"]) {
+      color: var(--savant-caution);
+      --sparkline-fill-color: var(--savant-caution);
     }
 
     :host([state="muted"]) {

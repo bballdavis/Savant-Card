@@ -18,7 +18,8 @@ export class SavantBreakerTile extends LitElement {
   @property({ attribute: false }) public breaker!: DiscoveredBreaker;
   @property({ attribute: false }) public display!: ResolvedBreakerDisplay;
   @property({ attribute: false }) public statistics?: BreakerStatistics;
-  @property({ type: Number }) public highLoadThresholdWatts = 3500;
+  @property({ type: Number }) public highLoadThresholdWatts = 2000;
+  @property({ type: Number }) public warningLoadThresholdWatts = 1000;
   @property({ type: Boolean }) public graphLoading = false;
   @property({ type: Boolean }) public pending = false;
   @property({ type: Boolean, reflect: true }) public stacked = false;
@@ -28,6 +29,7 @@ export class SavantBreakerTile extends LitElement {
   protected override render() {
     const state = this.runtimeState();
     const visual = this.visualState(state.powerWatts, state.switchState, state.available);
+    const loadState = this.loadState(state.powerWatts);
     const ultraCompact = this.stacked && this.mobileLayout === "ultra_compact";
     const subtitle = this.display.show_area ? this.breaker.areaName : undefined;
     const graphPoints =
@@ -64,8 +66,10 @@ export class SavantBreakerTile extends LitElement {
                   .points=${graphPoints}
                   .state=${!hasHistory || visual === "unavailable" || visual === "off"
                       ? "muted"
-                      : visual === "high_load"
+                      : loadState === "high"
                         ? "warning"
+                        : loadState === "warning"
+                          ? "caution"
                         : "normal"}
                 ></savant-sparkline>`
               : ""}
@@ -141,8 +145,13 @@ export class SavantBreakerTile extends LitElement {
     if (this.pending) return "pending";
     if (!available) return "unavailable";
     if (switchState === "off" || power === 0) return "off";
-    if (power !== undefined && power >= this.highLoadThresholdWatts) return "high_load";
     return "on";
+  }
+
+  private loadState(power?: number): "normal" | "warning" | "high" {
+    if (power !== undefined && power > this.highLoadThresholdWatts) return "high";
+    if (power !== undefined && power > this.warningLoadThresholdWatts) return "warning";
+    return "normal";
   }
 
   private openMoreInfo(event: Event): void {
@@ -201,10 +210,6 @@ export class SavantBreakerTile extends LitElement {
       font-family: var(--savant-breaker-font-family, var(--savant-font-family));
       font-weight: 400;
       cursor: pointer;
-    }
-
-    .tile.high_load {
-      --status-color: var(--savant-warning);
     }
 
     .tile.off,

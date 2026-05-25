@@ -145,7 +145,8 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
         <div class="board-tools">
           <div class="tool-wrap">
             <button class="chip-tool" type="button" @click=${() => (this.sortMenuOpen = !this.sortMenuOpen)}>
-              Sort
+              <span aria-hidden="true">↕</span>
+              <span class="sr-only">Sort</span>
             </button>
             ${this.sortMenuOpen
               ? html`<div class="tool-popover">
@@ -165,7 +166,8 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
           </div>
           <div class="tool-wrap">
             <button class="chip-tool" type="button" @click=${() => (this.searchOpen = !this.searchOpen)}>
-              Search
+              <span aria-hidden="true">⌕</span>
+              <span class="sr-only">Search</span>
             </button>
             ${this.searchOpen
               ? html`<div class="tool-popover search-popover">
@@ -208,7 +210,8 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
                 .graphLoading=${Boolean(powerEntity && !stat)}
                 .pending=${this.pendingSwitches.has(breaker.id)}
                 .error=${this.toggleErrors.get(breaker.id) ?? ""}
-                .highLoadThresholdWatts=${this.config.controls.high_load_threshold_watts ?? 3500}
+                .warningLoadThresholdWatts=${this.config.controls.warning_load_threshold_watts ?? 1000}
+                .highLoadThresholdWatts=${this.config.controls.high_load_threshold_watts ?? 2000}
               ></savant-breaker-tile>`;
             })}
           `,
@@ -355,12 +358,38 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
 
       .chip-tool {
         height: 36px;
-        padding: 0 13px;
+        width: 36px;
+        padding: 0;
+        display: grid;
+        place-items: center;
         border: 1px solid var(--savant-border);
         border-radius: var(--savant-radius);
         color: var(--primary-text-color);
-        background: var(--savant-tile-bg);
+        background:
+          linear-gradient(
+            145deg,
+            color-mix(in srgb, var(--savant-tile-bg) 94%, white),
+            var(--savant-tile-bg)
+          );
+        font-size: 18px;
+        line-height: 1;
         cursor: pointer;
+      }
+
+      .chip-tool:hover,
+      .chip-tool:focus-visible {
+        border-color: color-mix(in srgb, var(--savant-border) 70%, var(--primary-text-color));
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
 
       .tool-popover {

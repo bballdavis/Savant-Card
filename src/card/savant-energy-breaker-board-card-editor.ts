@@ -85,7 +85,10 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
           ${this.select("Control safety", this.config.controls.default_mode, ["hidden", "hold", "hold_confirm_off"], (value) =>
             this.patch({ controls: { ...this.config.controls, default_mode: value as any } }),
           )}
-          ${this.numberInput("High-load threshold (W)", this.config.controls.high_load_threshold_watts ?? 3500, (value) =>
+          ${this.numberInput("Yellow chart threshold (W)", this.config.controls.warning_load_threshold_watts ?? 1000, (value) =>
+            this.patch({ controls: { ...this.config.controls, warning_load_threshold_watts: value } }),
+          )}
+          ${this.numberInput("Orange chart threshold (W)", this.config.controls.high_load_threshold_watts ?? 2000, (value) =>
             this.patch({ controls: { ...this.config.controls, high_load_threshold_watts: value } }),
           )}
         </section>

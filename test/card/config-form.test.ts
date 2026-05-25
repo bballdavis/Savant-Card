@@ -14,7 +14,7 @@ describe("SavantEnergyBreakerBoardCard.getConfigForm", () => {
       "controls",
       "manual",
     ]);
-    expect(form.computeLabel({ name: "high_load_threshold_watts" })).toBe("High-load threshold");
+    expect(form.computeLabel({ name: "high_load_threshold_watts" })).toBe("Orange chart threshold");
     expect(form.computeHelper({ name: "refresh_interval_seconds" })).toBe("Minimum 30 seconds.");
   });
 
@@ -48,6 +48,7 @@ describe("SavantEnergyBreakerBoardCard.getConfigForm", () => {
         "period",
         "refresh_interval_seconds",
         "default_mode",
+        "warning_load_threshold_watts",
         "high_load_threshold_watts",
         "manual_breakers",
       ]),

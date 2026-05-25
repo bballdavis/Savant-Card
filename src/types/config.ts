@@ -41,6 +41,7 @@ export interface GraphConfig {
 
 export interface ControlsConfig {
   default_mode: ControlMode;
+  warning_load_threshold_watts?: number;
   high_load_threshold_watts?: number;
 }
 

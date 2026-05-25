@@ -21,10 +21,16 @@ describe("normalizeConfig", () => {
     expect(config.display.show_title).toBe(false);
   });
 
-  it("normalizes the configurable high-load threshold", () => {
-    const configured = normalizeConfig({ controls: { high_load_threshold_watts: 4200 } });
-    const fallback = normalizeConfig({ controls: { high_load_threshold_watts: -20 } });
+  it("normalizes the configurable chart color thresholds", () => {
+    const configured = normalizeConfig({
+      controls: { warning_load_threshold_watts: 1200, high_load_threshold_watts: 4200 },
+    });
+    const fallback = normalizeConfig({
+      controls: { warning_load_threshold_watts: -10, high_load_threshold_watts: -20 },
+    });
+    expect(configured.controls.warning_load_threshold_watts).toBe(1200);
     expect(configured.controls.high_load_threshold_watts).toBe(4200);
+    expect(fallback.controls.warning_load_threshold_watts).toBe(0);
     expect(fallback.controls.high_load_threshold_watts).toBe(0);
   });
 

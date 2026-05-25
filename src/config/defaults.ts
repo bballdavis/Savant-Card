@@ -35,7 +35,8 @@ export const DEFAULT_CONFIG: SavantBreakerBoardConfig = {
   },
   controls: {
     default_mode: "hold_confirm_off",
-    high_load_threshold_watts: 3500,
+    warning_load_threshold_watts: 1000,
+    high_load_threshold_watts: 2000,
   },
   excluded_breakers: [],
   breaker_overrides: {},

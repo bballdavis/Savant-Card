@@ -41,7 +41,8 @@ const LABELS: Record<string, string> = {
   refresh_interval_seconds: "Refresh interval",
   controls: "Controls",
   default_mode: "Default safety mode",
-  high_load_threshold_watts: "High-load threshold",
+  warning_load_threshold_watts: "Yellow chart threshold",
+  high_load_threshold_watts: "Orange chart threshold",
   manual_breakers: "Manual breaker mappings",
   id: "Breaker ID",
   name: "Name",
@@ -60,7 +61,8 @@ const HELPERS: Record<string, string> = {
   panel_filter: "Optional exact panel name to include.",
   area_filter: "Optional exact area name to include.",
   refresh_interval_seconds: "Minimum 30 seconds.",
-  high_load_threshold_watts: "Watts shown as a high-load warning on breaker tiles.",
+  warning_load_threshold_watts: "Chart turns yellow above this wattage.",
+  high_load_threshold_watts: "Chart turns orange above this wattage.",
   manual_breakers: "Optional fallback mappings for breakers that cannot be discovered from entity metadata.",
   id: "Use a stable ID, for example panel_1_circuit_12.",
 };
@@ -128,6 +130,10 @@ export function getSavantBreakerBoardConfigForm(): LovelaceCardConfigForm {
         title: "Controls",
         schema: [
           select("default_mode", ["hidden", "hold", "hold_confirm_off"]),
+          {
+            name: "warning_load_threshold_watts",
+            selector: { number: { min: 0, step: 100, mode: "box", unit_of_measurement: "W" } },
+          },
           {
             name: "high_load_threshold_watts",
             selector: { number: { min: 0, step: 100, mode: "box", unit_of_measurement: "W" } },
