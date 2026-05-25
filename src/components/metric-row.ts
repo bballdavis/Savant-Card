@@ -39,6 +39,7 @@ export class SavantMetricRow extends LitElement {
 
     :host-context(savant-breaker-tile[stacked]) .metric {
       min-width: 40px;
+      justify-items: center;
     }
 
     span {
