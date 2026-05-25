@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Home Assistant Lovelace card for discovering, displaying, and safely controlling Savant Energy breakers.",
   "type": "module",
-  "main": "dist/savant-energy-breaker-board-card.js",
+  "main": "dist/Savant-Card.js",
   "files": [
     "dist",
     "README.md",

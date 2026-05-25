@@ -1,8 +1,8 @@
 # Configuration
 
-The graphical editor is the preferred configuration surface. YAML remains supported.
+The Home Assistant visual card editor is the preferred configuration surface. YAML remains supported as an escape hatch, but new settings should be added to the card's `getConfigForm()` schema so users can configure the card without opening the raw editor.
 
-The editor stores:
+The visual editor stores:
 
 - Global defaults.
 - Hidden breaker IDs in `excluded_breakers`.

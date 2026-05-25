@@ -16,5 +16,5 @@ jobs:
       - run: npm run build
       - uses: actions/upload-artifact@v4
         with:
-          name: savant-energy-breaker-board-card
-          path: dist/savant-energy-breaker-board-card.js
+          name: Savant-Card
+          path: dist/Savant-Card.js

@@ -7,6 +7,7 @@ import "../components/board-error-state";
 import { BreakerDiscoveryService } from "../data/breaker-discovery-service";
 import { StatisticsManager } from "../data/statistics-manager";
 import { DEFAULT_CONFIG } from "../config/defaults";
+import { getSavantBreakerBoardConfigForm } from "./config-form";
 import { normalizeConfig, resolveBreakerDisplay } from "../config/normalize-config";
 import { sharedStyles } from "../styles/shared-styles";
 import type { DiscoveredBreaker } from "../types/breaker";
@@ -39,6 +40,10 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
 
   public static getConfigElement(): HTMLElement {
     return document.createElement("savant-energy-breaker-board-card-editor");
+  }
+
+  public static getConfigForm() {
+    return getSavantBreakerBoardConfigForm();
   }
 
   public static getStubConfig(): PartialSavantBreakerBoardConfig {

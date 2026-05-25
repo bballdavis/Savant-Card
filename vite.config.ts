@@ -6,7 +6,7 @@ export default defineConfig({
     lib: {
       entry: "src/index.ts",
       formats: ["es"],
-      fileName: () => "savant-energy-breaker-board-card.js",
+      fileName: () => "Savant-Card.js",
     },
     outDir: "dist",
     emptyOutDir: true,

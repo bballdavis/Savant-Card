@@ -20,6 +20,22 @@ Reference screenshots and final release screenshots can be placed in `docs/desig
 - Card picker registration through `window.customCards`.
 - Sections dashboard sizing with `getGridOptions()` and masonry sizing with `getCardSize()`.
 
+## HACS Installation
+
+Install this repository in HACS as a **Dashboard** repository. HACS stores dashboard elements under:
+
+```text
+/config/www/community/Savant-Card/Savant-Card.js
+```
+
+Home Assistant should load the card with the HACS resource URL:
+
+```text
+/hacsfiles/Savant-Card/Savant-Card.js
+```
+
+After HACS adds or updates that resource, refresh Home Assistant and open the dashboard editor. The card registers itself with Home Assistant's custom card picker as **Savant Energy Breaker Board**, so it should appear when you add a new card instead of requiring manual YAML.
+
 ## Manual Installation
 
 1. Build the card:
@@ -42,7 +58,7 @@ Reference screenshots and final release screenshots can be placed in `docs/desig
    type: module
    ```
 
-4. Add the card through the Home Assistant UI card picker as **Savant Energy Breaker Board**.
+4. Refresh Home Assistant. The card should appear in the Home Assistant UI card picker as **Savant Energy Breaker Board**.
 
 ## YAML Example
 
@@ -117,7 +133,7 @@ npm run demo:capture
 
 ## HACS
 
-`hacs.json` is included for later Lovelace plugin publication. A real release should attach `dist/savant-energy-breaker-board-card.js` as the HACS-downloadable artifact.
+`hacs.json` is configured for HACS Dashboard distribution. The repository keeps `dist/Savant-Card.js` on the default branch because HACS requires one Dashboard `.js` file to match the repository name. A release should attach the same `dist/Savant-Card.js`; HACS installs it under `www/community/` and serves it via `/hacsfiles/`.
 
 ## Known Limitations
 

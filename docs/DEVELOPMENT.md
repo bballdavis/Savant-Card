@@ -16,6 +16,7 @@ This repository is a frontend-only Home Assistant Lovelace custom card. It build
 The card follows current custom card conventions:
 
 - `setConfig(config)` receives user configuration.
+- `static getConfigForm()` exposes the built-in Home Assistant form editor for global card settings.
 - `static getConfigElement()` returns the custom editor element.
 - `static getStubConfig()` returns a starter config for the card picker.
 - `window.customCards` registers the card picker metadata.
@@ -35,8 +36,9 @@ The board uses CSS grid and container queries. Wide containers render portrait b
 3. Discovered breakers are filtered, sorted, grouped, and rendered.
 4. `StatisticsManager` fetches and caches graph/statistical data by entity and period.
 5. Live state values are read from `hass.states` during rendering.
-6. The editor uses the same discovery service and emits minimal `config-changed` payloads.
+6. The built-in form editor handles global settings from `getConfigForm()`.
+7. The custom editor uses the same discovery service and emits minimal `config-changed` payloads for breaker-specific exclusions and overrides.
 
 ## Release Build
 
-`npm run build` writes `dist/savant-energy-breaker-board-card.js`. Copy that file to `/config/www/` for manual Home Assistant use or attach it to a GitHub release for HACS.
+`npm run build` writes `dist/Savant-Card.js`. Copy that file to `/config/www/` for manual Home Assistant use or attach it to a GitHub release for HACS. HACS Dashboard installs should land under `/config/www/community/Savant-Card/` and be referenced through `/hacsfiles/Savant-Card/Savant-Card.js`.
