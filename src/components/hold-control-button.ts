@@ -73,12 +73,6 @@ export class SavantHoldControlButton extends LitElement {
   };
 
   private requestToggle(): void {
-    const turningOff = this.switchState === "on";
-    const confirmed =
-      !turningOff ||
-      this.mode !== "hold_confirm_off" ||
-      window.confirm(`Turn off ${this.label} breaker?`);
-    if (!confirmed) return;
     fireEvent(this, "savant-breaker-toggle", { breakerId: this.breakerId });
   }
 

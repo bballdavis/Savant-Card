@@ -347,10 +347,10 @@ export class SavantBreakerTile extends LitElement {
     }
 
     :host([stacked]) .tile {
-      min-height: 118px;
+      min-height: 150px;
       height: auto;
       display: block;
-      padding: 12px 62px 12px 32px;
+      padding: 12px 142px 12px 32px;
     }
 
     :host([stacked]) .mobile-bar {
@@ -388,8 +388,8 @@ export class SavantBreakerTile extends LitElement {
     :host([stacked]) .name {
       position: absolute;
       top: 13px;
-      left: 32px;
-      right: 118px;
+      left: 58px;
+      right: 136px;
       margin: 0;
       font-size: 16px;
       line-height: 1.15;
@@ -399,8 +399,8 @@ export class SavantBreakerTile extends LitElement {
     :host([stacked]) .subtitle {
       position: absolute;
       top: 31px;
-      left: 32px;
-      right: 118px;
+      left: 58px;
+      right: 136px;
       margin: 0;
       min-height: 0;
       font-size: 12px;
@@ -411,6 +411,7 @@ export class SavantBreakerTile extends LitElement {
       position: absolute;
       top: 45px;
       left: 32px;
+      right: 136px;
       margin: 0;
       font-size: 27px;
       line-height: 1;
@@ -419,21 +420,25 @@ export class SavantBreakerTile extends LitElement {
     :host([stacked]) .graph {
       position: absolute;
       left: 32px;
-      right: 130px;
-      bottom: 34px;
-      height: 24px;
-      min-height: 24px;
+      right: 136px;
+      bottom: 54px;
+      height: 34px;
+      min-height: 34px;
       margin: 0;
     }
 
     :host([stacked]) .metrics {
       left: auto;
       right: 16px;
-      bottom: 7px;
+      top: 35px;
+      bottom: 20px;
+      width: 116px;
+      justify-content: center;
+      align-items: stretch;
     }
 
     :host([stacked]) .control {
-      right: 14px;
+      right: 21px;
       top: 50%;
       bottom: auto;
       transform: translateY(-50%);
@@ -441,8 +446,8 @@ export class SavantBreakerTile extends LitElement {
 
     :host([stacked]) .entity-icon {
       position: absolute;
-      right: 26px;
-      top: 12px;
+      left: 32px;
+      top: 13px;
       width: 20px;
       height: 20px;
       font-size: 20px;

@@ -8,8 +8,14 @@ describe("normalizePoints", () => {
   });
 
   it("handles flat and missing data", () => {
-    expect(normalizePoints([{ start: 1, value: 0 }, { start: 2, value: 0 }])?.path).toContain("20.00");
+    expect(normalizePoints([{ start: 1, value: 0 }, { start: 2, value: 0 }])?.path).toContain("35.00");
     expect(normalizePoints([])).toBeUndefined();
+  });
+
+  it("uses zero as the visual baseline", () => {
+    const normalized = normalizePoints([{ start: 1, value: 0 }, { start: 2, value: 100 }]);
+
+    expect(normalized?.path).toBe("M 0.00 35.00 L 100.00 5.00");
   });
 
   it("renders missing data as a flatline instead of text", async () => {

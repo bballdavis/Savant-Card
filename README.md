@@ -45,16 +45,16 @@ After HACS adds or updates that resource, refresh Home Assistant and open the da
    npm run build
    ```
 
-2. Copy `dist/savant-energy-breaker-board-card.js` to Home Assistant:
+2. Copy `dist/Savant-Card.js` to Home Assistant:
 
    ```text
-   /config/www/savant-energy-breaker-board-card.js
+   /config/www/Savant-Card.js
    ```
 
 3. Add a dashboard resource:
 
    ```yaml
-   url: /local/savant-energy-breaker-board-card.js
+   url: /local/Savant-Card.js
    type: module
    ```
 

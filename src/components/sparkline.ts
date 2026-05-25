@@ -98,19 +98,16 @@ export function normalizePoints(points: SparklinePoint[]):
   const values = points.map((point) => point.value).filter(Number.isFinite);
   if (!values.length) return undefined;
   if (values.length === 1) {
-    const y = 18;
+    const y = yForValue(values[0]!, Math.max(1, values[0]!));
     return {
       path: `M 0 ${y} L 100 ${y}`,
       fillPath: `M 0 ${y} L 100 ${y} L 100 36 L 0 36 Z`,
     };
   }
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = max - min || 1;
+  const max = Math.max(1, ...values);
   const coords = values.map((value, index) => {
     const x = (index / (values.length - 1)) * 100;
-    const y = 23 - ((value - min) / range) * 18;
-    return [x, max === min ? 20 : y] as const;
+    return [x, yForValue(value, max)] as const;
   });
   const path = coords.map(([x, y], index) => `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`).join(" ");
   const first = coords[0]!;
@@ -121,10 +118,14 @@ export function normalizePoints(points: SparklinePoint[]):
   };
 }
 
+function yForValue(value: number, max: number): number {
+  return 35 - (Math.max(0, value) / max) * 30;
+}
+
 function flatline() {
   return {
-    path: "M 0 20 L 100 20",
-    fillPath: "M 0 20 L 100 20 L 100 36 L 0 36 Z",
+    path: "M 0 35 L 100 35",
+    fillPath: "M 0 35 L 100 35 L 100 36 L 0 36 Z",
   };
 }
 
