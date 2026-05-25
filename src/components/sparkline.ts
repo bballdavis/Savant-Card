@@ -142,8 +142,8 @@ function zeroLine(count: number) {
   return { path, fillPath: "" };
 }
 
-const TOP_Y = 6;
-const ZERO_Y = 29;
+const TOP_Y = 5;
+const ZERO_Y = 27;
 
 function linePath(coords: Array<readonly [number, number, number]>): string {
   if (coords.every(([, , value]) => value === 0)) {

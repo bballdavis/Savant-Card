@@ -730,7 +730,7 @@ function Ae(s) {
     return `${r === 0 ? "M" : "L"} ${i.toFixed(2)} ${L.toFixed(2)}`;
   }).join(" "), fillPath: "" };
 }
-const Ee = 6, L = 29;
+const Ee = 5, L = 27;
 function Pe(s) {
   if (s.every(([, , e]) => e === 0))
     return s.map(([e, r], i) => `${i === 0 ? "M" : "L"} ${e.toFixed(2)} ${r.toFixed(2)}`).join(" ");
