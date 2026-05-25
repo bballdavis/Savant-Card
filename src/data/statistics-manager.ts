@@ -66,7 +66,7 @@ export class StatisticsManager {
     period: GraphPeriod,
   ): Promise<SparklinePoint[]> {
     if (!hass.connection?.sendMessagePromise) return [];
-    if (period === "7d" || period === "24h") {
+    if (period === "7d" || period === "24h" || period === "12h") {
       try {
         const end = new Date();
         const start = new Date(end.getTime() - periodToMsInline(period));
@@ -100,6 +100,8 @@ function periodToMsInline(period: GraphPeriod): number {
       return 7 * 24 * 60 * 60 * 1000;
     case "6h":
       return 6 * 60 * 60 * 1000;
+    case "12h":
+      return 12 * 60 * 60 * 1000;
     case "1h":
       return 60 * 60 * 1000;
     default:

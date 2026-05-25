@@ -35,6 +35,8 @@ export function periodToMs(period: GraphPeriod): number {
       return 60 * 60 * 1000;
     case "6h":
       return 6 * 60 * 60 * 1000;
+    case "12h":
+      return 12 * 60 * 60 * 1000;
     case "7d":
       return 7 * 24 * 60 * 60 * 1000;
     case "24h":

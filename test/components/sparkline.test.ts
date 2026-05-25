@@ -15,17 +15,17 @@ describe("normalizePoints", () => {
   it("uses zero as the visual baseline", () => {
     const normalized = normalizePoints([{ start: 1, value: 0 }, { start: 2, value: 100 }]);
 
-    expect(normalized?.path).toBe("M 0.00 34.00 L 100.00 11.60");
+    expect(normalized?.path).toBe("M 0.00 31.00 L 100.00 11.60");
   });
 
-  it("does not draw long zero runs as a baseline", () => {
+  it("draws zero runs as a visible value line", () => {
     const normalized = normalizePoints([
       { start: 1, value: 0 },
       { start: 2, value: 0 },
       { start: 3, value: 100 },
     ]);
 
-    expect(normalized?.path).toBe("M 50.00 34.00 L 100.00 11.60");
+    expect(normalized?.path).toBe("M 0.00 31.00 L 50.00 31.00 M 50.00 31.00 L 100.00 11.60");
   });
 
   it("does not fill zero-only stretches", () => {
@@ -36,7 +36,7 @@ describe("normalizePoints", () => {
         { start: 2, value: 0 },
         { start: 3, value: 100 },
       ])?.fillPath,
-    ).toBe("M 50.00 34.00 L 100.00 11.60 L 100.00 36 L 50.00 36 Z");
+    ).toBe("M 50.00 31.00 L 100.00 11.60 L 100.00 36 L 50.00 36 Z");
   });
 
   it("raises zero-only data enough to remain visible", () => {

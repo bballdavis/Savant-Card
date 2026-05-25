@@ -22,6 +22,11 @@
           title: "Compact Board",
           layout: { density: "compact", sort_by: "current_power_descending" },
         },
+        ultraCompact: {
+          type: "custom:savant-energy-breaker-board-card",
+          title: "Ultra-compact Mobile",
+          layout: { mobile_view: "ultra_compact", sort_by: "current_power_descending" },
+        },
         empty: {
           type: "custom:savant-energy-breaker-board-card",
           title: "No Breakers",
@@ -151,6 +156,10 @@
       <section class="demo-width phone">
         <h2>Mobile stacked container</h2>
         <savant-energy-breaker-board-card data-config="loaded"></savant-energy-breaker-board-card>
+      </section>
+      <section class="demo-width phone">
+        <h2>Ultra-compact mobile</h2>
+        <savant-energy-breaker-board-card data-config="ultraCompact"></savant-energy-breaker-board-card>
       </section>
       <section class="demo-width tablet">
         <h2>Compact density</h2>

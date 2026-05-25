@@ -79,6 +79,7 @@ display:
   show_maximum_power: true
   show_energy: false
   show_sparkline: true
+  show_icon: true
   show_state: true
   show_controls: true
   show_area: false

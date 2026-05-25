@@ -33,11 +33,14 @@ describe("SavantEnergyBreakerBoardCard.getConfigForm", () => {
         "group_by",
         "sort_by",
         "density",
+        "mobile_view",
+        "show_title",
         "show_current_power",
         "show_average_power",
         "show_maximum_power",
         "show_energy",
         "show_sparkline",
+        "show_icon",
         "show_state",
         "show_controls",
         "show_area",
@@ -57,6 +60,14 @@ describe("SavantEnergyBreakerBoardCard.getConfigForm", () => {
     const values = sortBy?.selector.select.options.map((option: { value: string }) => option.value);
 
     expect(values).toContain("highest_usage");
+  });
+
+  it("includes 12h in the graph period selector", () => {
+    const form = SavantEnergyBreakerBoardCard.getConfigForm();
+    const period = collectSchema(form.schema).find((entry) => entry.name === "period");
+    const values = period?.selector.select.options.map((option: { value: string }) => option.value);
+
+    expect(values).toEqual(["1h", "6h", "12h", "24h", "7d"]);
   });
 
   it("makes manual fallback mappings editable without YAML", () => {

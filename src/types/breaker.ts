@@ -22,6 +22,7 @@ export interface ResolvedBreakerDisplay {
   show_maximum_power: boolean;
   show_energy: boolean;
   show_sparkline: boolean;
+  show_icon: boolean;
   show_state: boolean;
   show_controls: boolean;
   show_area: boolean;

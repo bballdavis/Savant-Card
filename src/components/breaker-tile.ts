@@ -5,6 +5,7 @@ import "./metric-row";
 import "./hold-control-button";
 import "./savant-icon";
 import type { DiscoveredBreaker, ResolvedBreakerDisplay } from "../types/breaker";
+import type { MobileView } from "../types/config";
 import type { BreakerStatistics } from "../types/statistics";
 import type { HomeAssistant } from "../types/home-assistant";
 import { formatPower, parseNumber } from "../utilities/format-power";
@@ -21,14 +22,17 @@ export class SavantBreakerTile extends LitElement {
   @property({ type: Boolean }) public graphLoading = false;
   @property({ type: Boolean }) public pending = false;
   @property({ type: Boolean, reflect: true }) public stacked = false;
+  @property({ type: String, attribute: "mobile-layout", reflect: true }) public mobileLayout: MobileView = "standard";
   @property({ type: String }) public error = "";
 
   protected override render() {
     const state = this.runtimeState();
     const visual = this.visualState(state.powerWatts, state.switchState, state.available);
+    const ultraCompact = this.stacked && this.mobileLayout === "ultra_compact";
     const subtitle = this.display.show_area ? this.breaker.areaName : undefined;
     const hasHistory = Boolean(this.statistics?.points.length);
     const hasStats =
+      !ultraCompact &&
       hasHistory &&
       (this.statistics?.averageWatts !== undefined || this.statistics?.maximumWatts !== undefined);
     const controlVisible =
@@ -38,17 +42,17 @@ export class SavantBreakerTile extends LitElement {
       Boolean(this.breaker.entities.switch);
 
     return html`
-      <button class=${`tile ${visual} ${this.pending ? "pending" : ""}`} @click=${this.openMoreInfo}>
+      <button class=${`tile ${visual} ${this.pending ? "pending" : ""} ${ultraCompact ? "ultra-compact" : ""}`} @click=${this.openMoreInfo}>
         <span class="mobile-bar" aria-hidden="true"></span>
         <span class="topline">
           <span class="state-dot" aria-hidden="true"></span>
           ${this.display.show_state
             ? html`<span class="state-text">${stateLabel(visual, state.switchState)}</span>`
             : ""}
-          ${this.renderEntityIcon()}
+          ${this.display.show_icon ? this.renderEntityIcon() : ""}
         </span>
         <span class="name">${this.display.label}</span>
-        ${subtitle ? html`<span class="subtitle">${subtitle}</span>` : ""}
+        ${subtitle && !ultraCompact ? html`<span class="subtitle">${subtitle}</span>` : ""}
         <span class="power">${this.display.show_current_power ? formatPower(state.powerWatts) : ""}</span>
         <span class="graph">
           ${this.graphLoading
@@ -492,6 +496,79 @@ export class SavantBreakerTile extends LitElement {
       width: 20px;
       height: 20px;
       font-size: 20px;
+    }
+
+    :host([stacked][mobile-layout="ultra_compact"]) .tile {
+      min-height: 44px;
+      padding: 7px 82px 7px 18px;
+    }
+
+    :host([stacked][mobile-layout="ultra_compact"]) .mobile-bar {
+      top: 8px;
+      bottom: 8px;
+      left: 6px;
+      width: 5px;
+    }
+
+    :host([stacked][mobile-layout="ultra_compact"]) .name {
+      top: 50%;
+      left: 18px;
+      right: 271px;
+      transform: translateY(-50%);
+      font-size: 14px;
+      line-height: 1.1;
+    }
+
+    :host([stacked][mobile-layout="ultra_compact"]) .power {
+      top: 50%;
+      left: auto;
+      right: 74px;
+      width: 70px;
+      transform: translateY(-50%);
+      font-size: 18px;
+      text-align: right;
+      color: var(--savant-tile-fg);
+    }
+
+    :host([stacked][mobile-layout="ultra_compact"]) .graph,
+    :host([stacked][mobile-layout="ultra_compact"]) .metrics,
+    :host([stacked][mobile-layout="ultra_compact"]) .entity-icon,
+    :host([stacked][mobile-layout="ultra_compact"]) .subtitle {
+      display: none;
+    }
+
+    :host([stacked][mobile-layout="ultra_compact"]) .graph {
+      display: block;
+      position: absolute;
+      top: 50%;
+      left: auto;
+      right: 150px;
+      width: 115px;
+      height: 22px;
+      min-height: 22px;
+      transform: translateY(-50%);
+    }
+
+    :host([stacked][mobile-layout="ultra_compact"]) savant-sparkline,
+    :host([stacked][mobile-layout="ultra_compact"]) .graph-skeleton {
+      height: 22px;
+      min-height: 22px;
+      opacity: 0.95;
+    }
+
+    :host([stacked][mobile-layout="ultra_compact"]) .control {
+      right: 10px;
+      transform: translateY(-50%) scale(0.76);
+      transform-origin: right center;
+    }
+
+    :host([stacked][mobile-layout="ultra_compact"]) .feedback {
+      left: 18px;
+      right: 84px;
+      bottom: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   `;
 }

@@ -1,7 +1,8 @@
 export type GroupBy = "none" | "panel" | "area" | "panel_then_area";
 export type SortBy = "circuit_number" | "name" | "current_power_descending" | "highest_usage" | "manual";
 export type Density = "comfortable" | "compact";
-export type GraphPeriod = "1h" | "6h" | "24h" | "7d";
+export type MobileView = "standard" | "ultra_compact";
+export type GraphPeriod = "1h" | "6h" | "12h" | "24h" | "7d";
 export type ControlMode = "hidden" | "hold" | "hold_confirm_off";
 
 export interface DiscoveryConfig {
@@ -16,14 +17,17 @@ export interface LayoutConfig {
   group_by: GroupBy;
   sort_by: SortBy;
   density: Density;
+  mobile_view: MobileView;
 }
 
 export interface DisplayConfig {
+  show_title: boolean;
   show_current_power: boolean;
   show_average_power: boolean;
   show_maximum_power: boolean;
   show_energy: boolean;
   show_sparkline: boolean;
+  show_icon: boolean;
   show_state: boolean;
   show_controls: boolean;
   show_area: boolean;
@@ -47,6 +51,7 @@ export interface BreakerOverrideConfig {
   show_maximum_power?: boolean;
   show_energy?: boolean;
   show_sparkline?: boolean;
+  show_icon?: boolean;
   show_controls?: boolean;
   control_mode?: ControlMode;
 }

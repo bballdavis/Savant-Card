@@ -37,6 +37,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   public setConfig(config: PartialSavantBreakerBoardConfig): void {
     this.config = normalizeConfig(config);
     this.setAttribute("density", this.config.layout.density);
+    this.setAttribute("mobile-view", this.config.layout.mobile_view);
     this.discoveryKey = "";
   }
 
@@ -52,13 +53,13 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
     return {
       title: "Electrical Panel",
       discovery: { enabled: true },
-      layout: { group_by: "panel", density: "comfortable" },
+      layout: { group_by: "panel", density: "comfortable", mobile_view: "standard" },
     };
   }
 
   public getCardSize(): number {
     const count = Math.max(this.breakers.length, 6);
-    return Math.ceil(count / 2) + (this.config.title ? 1 : 0);
+    return Math.ceil(count / 2) + (this.config.display.show_title && this.config.title ? 1 : 0);
   }
 
   public getGridOptions() {
@@ -111,7 +112,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   protected override render() {
     return html`
       <ha-card>
-        ${this.config.title
+        ${this.config.display.show_title && this.config.title
           ? html`<div class="board-header"><h2 class="board-title">${this.config.title}</h2></div>`
           : nothing}
         ${this.error
@@ -152,6 +153,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
                 .display=${display}
                 .statistics=${stat}
                 ?stacked=${this.stacked}
+                .mobileLayout=${this.config.layout.mobile_view}
                 .graphLoading=${Boolean(powerEntity && !stat)}
                 .pending=${this.pendingSwitches.has(breaker.id)}
                 .error=${this.toggleErrors.get(breaker.id) ?? ""}

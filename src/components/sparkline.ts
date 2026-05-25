@@ -103,7 +103,8 @@ export function normalizePoints(points: SparklinePoint[]):
   const max = domainMax(values);
   const coords = values.map((value, index) => {
     const x = (index / (values.length - 1)) * 100;
-    return [x, yForValue(value, max), Math.max(0, value)] as const;
+    const normalizedValue = Math.max(0, value);
+    return [x, normalizedValue === 0 ? ZERO_Y : yForValue(value, max), normalizedValue] as const;
   });
   const path = linePath(coords);
   return {
@@ -122,7 +123,7 @@ function domainMax(values: number[]): number {
 
 function flatline() {
   return {
-    path: "M 0 31 L 100 31",
+    path: `M 0 ${ZERO_Y} L 100 ${ZERO_Y}`,
     fillPath: "",
   };
 }
@@ -130,16 +131,18 @@ function flatline() {
 function zeroLine(count: number) {
   if (count <= 1) {
     return {
-      path: "M 0 31 L 100 31",
+      path: `M 0 ${ZERO_Y} L 100 ${ZERO_Y}`,
       fillPath: "",
     };
   }
   const path = Array.from({ length: count }, (_, index) => {
     const x = (index / (count - 1)) * 100;
-    return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} 31.00`;
+    return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${ZERO_Y.toFixed(2)}`;
   }).join(" ");
   return { path, fillPath: "" };
 }
+
+const ZERO_Y = 31;
 
 function linePath(coords: Array<readonly [number, number, number]>): string {
   if (coords.every(([, , value]) => value === 0)) {
@@ -150,7 +153,6 @@ function linePath(coords: Array<readonly [number, number, number]>): string {
   for (let index = 1; index < coords.length; index += 1) {
     const previous = coords[index - 1]!;
     const current = coords[index]!;
-    if (previous[2] === 0 && current[2] === 0) continue;
     segments.push(`M ${previous[0].toFixed(2)} ${previous[1].toFixed(2)} L ${current[0].toFixed(2)} ${current[1].toFixed(2)}`);
   }
   return segments.join(" ");

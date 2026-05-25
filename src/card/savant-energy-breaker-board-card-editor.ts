@@ -16,7 +16,10 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
   @state() private config: SavantBreakerBoardConfig = DEFAULT_CONFIG;
   @state() private breakers: DiscoveredBreaker[] = [];
   @state() private filter = "";
-  @state() private loading = true;
+  @state() private loading = false;
+  @state() private discoveryError = "";
+  @state() private expandedBreakers = new Set<string>();
+  private discoveryLoaded = false;
   private discovery = new BreakerDiscoveryService();
 
   public setConfig(config: PartialSavantBreakerBoardConfig): void {
@@ -37,8 +40,14 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
         <section>
           <h3>Board</h3>
           ${this.textInput("Title", this.config.title ?? "", (value) => this.patch({ title: value || undefined }))}
-          ${this.checkbox("Auto-discovery", this.config.discovery.enabled, (value) =>
+          ${this.switch("Show title section", this.config.display.show_title, (value) =>
+            this.patch({ display: { ...this.config.display, show_title: value } }),
+          )}
+          ${this.switch("Auto-discovery", this.config.discovery.enabled, (value) =>
             this.patch({ discovery: { ...this.config.discovery, enabled: value } }),
+          )}
+          ${this.switch("Ultra-compact mobile view", this.config.layout.mobile_view === "ultra_compact", (enabled) =>
+            this.patch({ layout: { ...this.config.layout, mobile_view: enabled ? "ultra_compact" : "standard" } }),
           )}
           ${this.select("Group", this.config.layout.group_by, ["none", "panel", "area", "panel_then_area"], (value) =>
             this.patch({ layout: { ...this.config.layout, group_by: value as any } }),
@@ -49,7 +58,7 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
           ${this.select("Density", this.config.layout.density, ["comfortable", "compact"], (value) =>
             this.patch({ layout: { ...this.config.layout, density: value as any } }),
           )}
-          ${this.select("Graph period", this.config.graph.period, ["1h", "6h", "24h", "7d"], (value) =>
+          ${this.select("Graph period", this.config.graph.period, ["1h", "6h", "12h", "24h", "7d"], (value) =>
             this.patch({ graph: { ...this.config.graph, period: value as any } }),
           )}
           <p class="helper">Tiles automatically switch to a horizontal stacked layout in narrow dashboard columns.</p>
@@ -63,12 +72,13 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
             show_maximum_power: "Maximum power",
             show_energy: "Energy",
             show_sparkline: "Sparkline",
+            show_icon: "Icon",
             show_state: "Breaker state",
             show_controls: "Breaker controls",
             show_area: "Area label",
             show_circuit_number: "Circuit number",
           }).map(([key, label]) =>
-            this.checkbox(label, (this.config.display as any)[key], (value) =>
+            this.switch(label, (this.config.display as any)[key], (value) =>
               this.patch({ display: { ...this.config.display, [key]: value } }),
             ),
           )}
@@ -81,9 +91,18 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
         </section>
 
         <section>
-          <h3>Discovered breakers</h3>
+          <div class="section-head">
+            <h3>Discovered breakers</h3>
+            <button class="refresh" ?disabled=${this.loading || !this.hass} @click=${() => this.loadBreakers(true)}>
+              ${this.loading ? "Refreshing..." : "Refresh"}
+            </button>
+          </div>
           ${this.textInput("Search breakers", this.filter, (value) => (this.filter = value), false)}
+          ${this.discoveryError ? html`<div class="error">${this.discoveryError}</div>` : nothing}
           ${this.loading ? html`<div class="loading">Loading discovered breakers...</div>` : nothing}
+          ${!this.loading && !visible.length
+            ? html`<div class="loading">${this.discoveryLoaded ? "No discovered breakers found." : "Discovery will run once when Home Assistant is ready."}</div>`
+            : nothing}
           ${visible.map((breaker) => this.renderBreakerEditor(breaker))}
         </section>
       </div>
@@ -93,6 +112,7 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
   private renderBreakerEditor(breaker: DiscoveredBreaker) {
     const excluded = this.config.excluded_breakers.includes(breaker.id);
     const override = this.config.breaker_overrides[breaker.id] ?? {};
+    const expanded = this.expandedBreakers.has(breaker.id);
     const power = breaker.entities.power ? parseNumber(this.hass?.states[breaker.entities.power]?.state) : undefined;
     const entityList = Object.entries(breaker.entities)
       .filter(([, entity]) => entity)
@@ -100,40 +120,56 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
       .join(", ");
     return html`
       <article class=${excluded ? "breaker excluded" : "breaker"}>
-        <div class="breaker-head">
+        <div class="breaker-head" @click=${() => this.toggleExpanded(breaker.id)}>
           <div>
             <strong>${override.label || breaker.name}</strong>
-            <span>${formatPower(power)} • ${breaker.available ? "available" : "unavailable"}</span>
-            <small>${entityList || "No associated entities"}</small>
           </div>
-          ${this.checkbox("Shown", !excluded, (shown) => this.setExcluded(breaker.id, !shown))}
+          <span class="breaker-actions">
+            ${this.switch("Shown", !excluded, (shown) => this.setExcluded(breaker.id, !shown))}
+            <span class="chevron">${expanded ? "Collapse" : "Expand"}</span>
+          </span>
         </div>
-        ${this.textInput("Custom label", override.label ?? "", (value) =>
-          this.setOverride(breaker.id, { ...override, label: value || undefined }),
-        )}
-        <div class="override-grid">
-          ${(["show_current_power", "show_average_power", "show_maximum_power", "show_energy", "show_sparkline", "show_controls"] as const).map((key) =>
-            this.tristate(key.replaceAll("_", " "), override[key], (value) =>
-              this.setOverride(breaker.id, { ...override, [key]: value }),
-            ),
-          )}
-        </div>
-        ${this.select("Control mode", override.control_mode ?? "default", ["default", "hidden", "hold", "hold_confirm_off"], (value) =>
-          this.setOverride(breaker.id, {
-            ...override,
-            control_mode: value === "default" ? undefined : (value as any),
-          }),
-        )}
-        <button class="reset" @click=${() => this.resetOverride(breaker.id)}>Reset to defaults</button>
+        ${expanded
+          ? html`
+              <div class="breaker-details">
+                <span>${formatPower(power)} - ${breaker.available ? "available" : "unavailable"}</span>
+                <small>${entityList || "No associated entities"}</small>
+              </div>
+              ${this.textInput("Custom label", override.label ?? "", (value) =>
+                this.setOverride(breaker.id, { ...override, label: value || undefined }),
+              )}
+              <div class="override-grid">
+                ${(["show_current_power", "show_average_power", "show_maximum_power", "show_energy", "show_sparkline", "show_icon", "show_controls"] as const).map((key) =>
+                  this.tristate(key.replaceAll("_", " "), override[key], (value) =>
+                    this.setOverride(breaker.id, { ...override, [key]: value }),
+                  ),
+                )}
+              </div>
+              ${this.select("Control mode", override.control_mode ?? "default", ["default", "hidden", "hold", "hold_confirm_off"], (value) =>
+                this.setOverride(breaker.id, {
+                  ...override,
+                  control_mode: value === "default" ? undefined : (value as any),
+                }),
+              )}
+              <button class="reset" @click=${() => this.resetOverride(breaker.id)}>Reset to defaults</button>
+            `
+          : nothing}
       </article>
     `;
   }
 
-  private async loadBreakers(): Promise<void> {
-    if (!this.hass) return;
+  private async loadBreakers(force = false): Promise<void> {
+    if (!this.hass || (!force && (this.discoveryLoaded || this.loading))) return;
     this.loading = true;
-    this.breakers = await this.discovery.discover(this.hass, this.config);
-    this.loading = false;
+    this.discoveryError = "";
+    try {
+      this.breakers = await this.discovery.discover(this.hass, this.config);
+      this.discoveryLoaded = true;
+    } catch (error) {
+      this.discoveryError = error instanceof Error ? error.message : "Discovery failed";
+    } finally {
+      this.loading = false;
+    }
   }
 
   private patch(partial: PartialSavantBreakerBoardConfig): void {
@@ -159,12 +195,29 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
     fireEvent(this, "config-changed", { config: minimal });
   }
 
+  private toggleExpanded(id: string): void {
+    const next = new Set(this.expandedBreakers);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    this.expandedBreakers = next;
+  }
+
   private textInput(label: string, value: string, onChange: (value: string) => void, commit = true) {
     return html`<label><span>${label}</span><input .value=${value} @input=${(event: Event) => onChange((event.target as HTMLInputElement).value)} @change=${commit ? (event: Event) => onChange((event.target as HTMLInputElement).value) : undefined} /></label>`;
   }
 
   private checkbox(label: string, checked: boolean, onChange: (checked: boolean) => void) {
     return html`<label class="check"><input type="checkbox" .checked=${checked} @change=${(event: Event) => onChange((event.target as HTMLInputElement).checked)} /> <span>${label}</span></label>`;
+  }
+
+  private switch(label: string, checked: boolean, onChange: (checked: boolean) => void) {
+    return html`
+      <label class="switch" @click=${(event: Event) => event.stopPropagation()}>
+        <input type="checkbox" .checked=${checked} @change=${(event: Event) => onChange((event.target as HTMLInputElement).checked)} />
+        <span class="switch-track" aria-hidden="true"></span>
+        <span>${label}</span>
+      </label>
+    `;
   }
 
   private select(label: string, value: string, options: string[], onChange: (value: string) => void) {
@@ -229,22 +282,95 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
       width: auto;
     }
 
+    .switch {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: max-content;
+      max-width: 100%;
+      cursor: pointer;
+    }
+
+    .switch input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .switch-track {
+      position: relative;
+      flex: none;
+      width: 36px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--disabled-text-color);
+      transition: background 150ms ease;
+    }
+
+    .switch-track::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--card-background-color, white);
+      transition: transform 150ms ease;
+      box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+    }
+
+    .switch input:checked + .switch-track {
+      background: var(--primary-color);
+    }
+
+    .switch input:checked + .switch-track::after {
+      transform: translateX(16px);
+    }
+
     .helper,
+    .loading,
     small,
     .breaker span {
       color: var(--secondary-text-color);
     }
 
-    .breaker-head {
+    .error {
+      color: var(--error-color);
+      font-size: 13px;
+    }
+
+    .section-head,
+    .breaker-actions {
       display: flex;
+      align-items: center;
       justify-content: space-between;
       gap: 12px;
+    }
+
+    .breaker-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
     }
 
     .breaker-head div {
       display: grid;
       gap: 3px;
       min-width: 0;
+    }
+
+    .breaker-details {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .chevron {
+      font-size: 12px;
+      color: var(--secondary-text-color);
     }
 
     .excluded {
@@ -257,7 +383,8 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
       gap: 8px;
     }
 
-    .reset {
+    .reset,
+    .refresh {
       justify-self: start;
       padding: 8px 10px;
       border: 1px solid var(--divider-color);
@@ -265,6 +392,16 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
       color: var(--primary-text-color);
       background: var(--secondary-background-color);
       cursor: pointer;
+    }
+
+    .refresh {
+      justify-self: end;
+      padding: 6px 10px;
+    }
+
+    .refresh:disabled {
+      opacity: 0.6;
+      cursor: default;
     }
   `;
 }
@@ -274,3 +411,4 @@ declare global {
     "savant-energy-breaker-board-card-editor": SavantEnergyBreakerBoardCardEditor;
   }
 }
+
