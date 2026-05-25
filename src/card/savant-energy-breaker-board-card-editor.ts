@@ -75,6 +75,9 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
           ${this.select("Control safety", this.config.controls.default_mode, ["hidden", "hold", "hold_confirm_off"], (value) =>
             this.patch({ controls: { ...this.config.controls, default_mode: value as any } }),
           )}
+          ${this.numberInput("High-load threshold (W)", this.config.controls.high_load_threshold_watts ?? 3500, (value) =>
+            this.patch({ controls: { ...this.config.controls, high_load_threshold_watts: value } }),
+          )}
         </section>
 
         <section>
@@ -166,6 +169,10 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
 
   private select(label: string, value: string, options: string[], onChange: (value: string) => void) {
     return html`<label><span>${label}</span><select .value=${value} @change=${(event: Event) => onChange((event.target as HTMLSelectElement).value)}>${options.map((option) => html`<option value=${option}>${option}</option>`)}</select></label>`;
+  }
+
+  private numberInput(label: string, value: number, onChange: (value: number) => void) {
+    return html`<label><span>${label}</span><input type="number" min="0" step="100" .value=${String(value)} @change=${(event: Event) => onChange(Number((event.target as HTMLInputElement).value) || 0)} /></label>`;
   }
 
   private tristate(label: string, value: boolean | undefined, onChange: (value: boolean | undefined) => void) {

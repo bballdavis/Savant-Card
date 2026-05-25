@@ -41,7 +41,7 @@ export class SavantBreakerTile extends LitElement {
       <button class=${`tile ${visual} ${this.pending ? "pending" : ""}`} @click=${this.openMoreInfo}>
         <span class="mobile-bar" aria-hidden="true"></span>
         <span class="topline">
-          <span class="state-dot"></span>
+          <span class="state-dot" aria-hidden="true"></span>
           ${this.display.show_state
             ? html`<span class="state-text">${stateLabel(visual, state.switchState)}</span>`
             : ""}
@@ -149,6 +149,13 @@ export class SavantBreakerTile extends LitElement {
       aspect-ratio: 1 / 1;
       --status-color: var(--savant-success);
       --control-color: var(--status-color);
+      --savant-text-halo:
+        0 0 2px var(--savant-tile-bg),
+        0 1px 1px var(--savant-tile-bg),
+        1px 0 1px var(--savant-tile-bg),
+        0 -1px 1px var(--savant-tile-bg),
+        -1px 0 1px var(--savant-tile-bg);
+      --savant-text-outline-color: var(--savant-tile-bg);
       --savant-font-family:
         Inter, "SF Pro Display", "SF Pro Text", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
@@ -201,6 +208,8 @@ export class SavantBreakerTile extends LitElement {
       line-height: 1.2;
       font-weight: 500;
       text-transform: uppercase;
+      position: relative;
+      z-index: 1;
     }
 
     .state-dot {
@@ -230,6 +239,8 @@ export class SavantBreakerTile extends LitElement {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      position: relative;
+      z-index: 1;
     }
 
     .subtitle {
@@ -242,6 +253,10 @@ export class SavantBreakerTile extends LitElement {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      position: relative;
+      z-index: 1;
+      -webkit-text-stroke: 3px var(--savant-text-outline-color);
+      paint-order: stroke fill;
     }
 
     .power {
@@ -252,6 +267,8 @@ export class SavantBreakerTile extends LitElement {
       letter-spacing: 0;
       line-height: 1.12;
       white-space: nowrap;
+      position: relative;
+      z-index: 1;
     }
 
     .tile.on .power,
@@ -264,6 +281,8 @@ export class SavantBreakerTile extends LitElement {
       min-height: 58px;
       margin: 2px -16px 52px;
       pointer-events: none;
+      position: relative;
+      z-index: 0;
     }
 
     .metrics {
@@ -275,6 +294,7 @@ export class SavantBreakerTile extends LitElement {
       align-items: end;
       gap: 12px;
       min-width: 0;
+      z-index: 1;
     }
 
     .energy,
@@ -327,20 +347,19 @@ export class SavantBreakerTile extends LitElement {
     }
 
     :host([stacked]) .tile {
-      min-height: 132px;
+      min-height: 118px;
       height: auto;
-      grid-template-columns: minmax(0, 1fr) auto;
-      grid-template-rows: auto auto auto 1fr;
-      padding: 14px 68px 14px 34px;
+      display: block;
+      padding: 12px 62px 12px 32px;
     }
 
     :host([stacked]) .mobile-bar {
       display: block;
       position: absolute;
-      top: 14px;
-      bottom: 14px;
-      left: 10px;
-      width: 8px;
+      top: 10px;
+      bottom: 10px;
+      left: 8px;
+      width: 7px;
       border-radius: 999px;
       background: var(--status-color);
     }
@@ -354,7 +373,12 @@ export class SavantBreakerTile extends LitElement {
     }
 
     :host([stacked]) .topline {
-      grid-column: 1 / 3;
+      display: contents;
+      gap: 0;
+    }
+
+    :host([stacked]) .state-dot {
+      display: none;
     }
 
     :host([stacked]) .state-text {
@@ -362,35 +386,66 @@ export class SavantBreakerTile extends LitElement {
     }
 
     :host([stacked]) .name {
-      margin-top: 5px;
+      position: absolute;
+      top: 13px;
+      left: 32px;
+      right: 118px;
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.15;
+      min-height: 0;
+    }
+
+    :host([stacked]) .subtitle {
+      position: absolute;
+      top: 31px;
+      left: 32px;
+      right: 118px;
+      margin: 0;
+      min-height: 0;
+      font-size: 12px;
+      line-height: 1.15;
     }
 
     :host([stacked]) .power {
-      margin-top: 10px;
+      position: absolute;
+      top: 45px;
+      left: 32px;
+      margin: 0;
+      font-size: 27px;
+      line-height: 1;
     }
 
     :host([stacked]) .graph {
-      grid-column: 1 / 2;
-      min-height: 28px;
-      margin: 0 0 34px -18px;
+      position: absolute;
+      left: 32px;
+      right: 150px;
+      bottom: 34px;
+      height: 24px;
+      min-height: 24px;
+      margin: 0;
     }
 
     :host([stacked]) .metrics {
       left: auto;
-      right: 14px;
-      bottom: 16px;
+      right: 16px;
+      bottom: 7px;
     }
 
     :host([stacked]) .control {
       right: 14px;
-      top: 48px;
+      top: 50%;
       bottom: auto;
+      transform: translateY(-50%);
     }
 
     :host([stacked]) .entity-icon {
       position: absolute;
-      right: 20px;
-      top: 14px;
+      right: 22px;
+      top: 12px;
+      width: 20px;
+      height: 20px;
+      font-size: 20px;
     }
   `;
 }

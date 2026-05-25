@@ -27,10 +27,18 @@ export class SavantMetricRow extends LitElement {
       min-width: 0;
     }
 
+    :host-context(savant-breaker-tile[stacked]) {
+      gap: 16px;
+    }
+
     .metric {
       display: grid;
       gap: 3px;
       min-width: 48px;
+    }
+
+    :host-context(savant-breaker-tile[stacked]) .metric {
+      min-width: 40px;
     }
 
     span {
@@ -41,12 +49,22 @@ export class SavantMetricRow extends LitElement {
       letter-spacing: 0.02em;
     }
 
+    :host-context(savant-breaker-tile[stacked]) span {
+      font-size: 10px;
+    }
+
     strong {
       color: var(--savant-tile-fg);
       font-size: 15px;
       font-weight: 500;
       line-height: 1.1;
       white-space: nowrap;
+      -webkit-text-stroke: 2px var(--savant-text-outline-color);
+      paint-order: stroke fill;
+    }
+
+    :host-context(savant-breaker-tile[stacked]) strong {
+      font-size: 12px;
     }
   `;
 }

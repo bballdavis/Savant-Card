@@ -1,17 +1,17 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, svg } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import type { SparklinePoint } from "../types/statistics";
 
 @customElement("savant-sparkline")
 export class SavantSparkline extends LitElement {
   @property({ attribute: false }) public points: SparklinePoint[] = [];
-  @property({ type: String }) public state: "normal" | "warning" | "muted" = "normal";
+  @property({ type: String, reflect: true }) public state: "normal" | "warning" | "muted" = "normal";
 
   protected override render() {
     const normalized = normalizePoints(this.points);
     const graph = normalized ?? flatline();
     const noHistory = !normalized;
-    return html`
+    return svg`
       <svg
         data-no-history=${noHistory ? "true" : "false"}
         viewBox="0 0 100 36"
@@ -19,17 +19,17 @@ export class SavantSparkline extends LitElement {
         aria-hidden="true"
       >
         <defs>
-          <linearGradient id="savant-sparkline-fill" x1="0" x2="0" y1="0" y2="1">
-            <stop class="fill-stop-strong" offset="0%"></stop>
-            <stop class="fill-stop-soft" offset="62%"></stop>
-            <stop class="fill-stop-clear" offset="100%"></stop>
+          <linearGradient id="savant-sparkline-area" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="currentColor" stop-opacity="0.44"></stop>
+            <stop offset="50%" stop-color="currentColor" stop-opacity="0.16"></stop>
+            <stop offset="100%" stop-color="currentColor" stop-opacity="0"></stop>
           </linearGradient>
         </defs>
         ${noHistory
           ? ""
-          : html`
+          : svg`
+              <path class="fill-floor" d=${graph.fillPath}></path>
               <path class="fill-base" d=${graph.fillPath}></path>
-              <path class="fill" fill="url(#savant-sparkline-fill)" d=${graph.fillPath}></path>
             `}
         <path class="line" d=${graph.path}></path>
       </svg>
@@ -42,7 +42,7 @@ export class SavantSparkline extends LitElement {
       min-height: 32px;
       color: var(--savant-success);
       --sparkline-fill-color: var(--savant-success);
-      opacity: 0.82;
+      opacity: 1;
     }
 
     :host([state="warning"]) {
@@ -68,30 +68,17 @@ export class SavantSparkline extends LitElement {
       stroke: currentColor;
       stroke-width: 1.45;
       vector-effect: non-scaling-stroke;
+      opacity: 0.9;
     }
 
-    .fill {
-      opacity: 1;
+    .fill-floor {
+      fill: currentColor;
+      opacity: 0.04;
     }
 
     .fill-base {
-      fill: currentColor;
-      opacity: 0.26;
-    }
-
-    .fill-stop-strong {
-      stop-color: var(--sparkline-fill-color);
-      stop-opacity: 0.36;
-    }
-
-    .fill-stop-soft {
-      stop-color: var(--sparkline-fill-color);
-      stop-opacity: 0.17;
-    }
-
-    .fill-stop-clear {
-      stop-color: var(--sparkline-fill-color);
-      stop-opacity: 0;
+      fill: url("#savant-sparkline-area");
+      opacity: 1;
     }
 
     svg[data-no-history="true"] .line {

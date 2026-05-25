@@ -9,6 +9,13 @@ describe("normalizeConfig", () => {
     expect(config.layout.density).toBe("compact");
   });
 
+  it("normalizes the configurable high-load threshold", () => {
+    const configured = normalizeConfig({ controls: { high_load_threshold_watts: 4200 } });
+    const fallback = normalizeConfig({ controls: { high_load_threshold_watts: -20 } });
+    expect(configured.controls.high_load_threshold_watts).toBe(4200);
+    expect(fallback.controls.high_load_threshold_watts).toBe(0);
+  });
+
   it("resolves breaker overrides over global display defaults", () => {
     const config = normalizeConfig({
       display: { show_average_power: true },

@@ -104,6 +104,11 @@ export class SavantHoldControlButton extends LitElement {
       touch-action: none;
     }
 
+    :host-context(savant-breaker-tile[stacked]) button {
+      width: 44px;
+      height: 44px;
+    }
+
     button[disabled] {
       cursor: default;
       color: var(--savant-disabled);
