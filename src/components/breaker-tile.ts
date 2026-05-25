@@ -56,7 +56,7 @@ export class SavantBreakerTile extends LitElement {
             : this.display.show_sparkline
               ? html`<savant-sparkline
                   .points=${this.statistics?.points ?? []}
-                  .state=${!hasHistory || visual === "off" || visual === "unavailable"
+                  .state=${!hasHistory || visual === "unavailable"
                       ? "muted"
                       : visual === "high_load"
                         ? "warning"
