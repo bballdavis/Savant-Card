@@ -291,6 +291,9 @@ export class SavantBreakerTile extends LitElement {
       white-space: nowrap;
       position: relative;
       z-index: 1;
+      text-shadow: var(--savant-text-halo);
+      -webkit-text-stroke: 4px var(--savant-text-outline-color);
+      paint-order: stroke fill;
     }
 
     .tile.on .power {
@@ -301,9 +304,10 @@ export class SavantBreakerTile extends LitElement {
       position: absolute;
       left: 0;
       right: 0;
-      bottom: 82px;
-      height: 58px;
-      min-height: 58px;
+      bottom: 58px;
+      top: 136px;
+      height: auto;
+      min-height: 0;
       margin: 0;
       pointer-events: none;
       z-index: 0;
@@ -388,9 +392,10 @@ export class SavantBreakerTile extends LitElement {
     }
 
     :host-context([density="compact"]) .graph {
-      height: 32px;
-      min-height: 32px;
-      bottom: 68px;
+      top: 98px;
+      height: auto;
+      min-height: 0;
+      bottom: 52px;
     }
 
     :host([stacked]) {
@@ -466,12 +471,14 @@ export class SavantBreakerTile extends LitElement {
       margin: 0;
       font-size: 27px;
       line-height: 1;
+      z-index: 2;
     }
 
     :host([stacked]) .graph {
       position: absolute;
       left: 32px;
       right: 124px;
+      top: auto;
       bottom: 12px;
       height: 68px;
       min-height: 68px;
@@ -549,8 +556,8 @@ export class SavantBreakerTile extends LitElement {
       display: block;
       position: absolute;
       top: 50%;
-      left: 86px;
-      right: 74px;
+      left: 64px;
+      right: 148px;
       width: auto;
       height: 28px;
       min-height: 28px;

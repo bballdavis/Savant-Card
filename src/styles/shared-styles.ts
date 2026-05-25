@@ -12,7 +12,7 @@ export const sharedStyles = css`
     --savant-error: var(--error-color, #f05246);
     --savant-disabled: var(--disabled-text-color, #8d9499);
     --savant-border: color-mix(in srgb, var(--divider-color, #6f767b) 35%, transparent);
-    --savant-radius: var(--ha-card-border-radius, 14px);
+    --savant-radius: var(--savant-breaker-radius, 12px);
     font-family: var(--paper-font-body1_-_font-family, inherit);
   }
 
@@ -52,6 +52,7 @@ export const sharedStyles = css`
 
   .board-grid.stacked {
     grid-template-columns: 1fr;
+    gap: 4px;
   }
 
   .group-title {
