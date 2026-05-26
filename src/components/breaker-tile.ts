@@ -24,6 +24,7 @@ export class SavantBreakerTile extends LitElement {
   @property({ type: Boolean }) public pending = false;
   @property({ type: Boolean, reflect: true }) public stacked = false;
   @property({ type: String, attribute: "mobile-layout", reflect: true }) public mobileLayout: MobileView = "standard";
+  @property({ type: String }) public optimisticSwitchState?: string;
   @property({ type: String }) public error = "";
 
   protected override render() {
@@ -132,7 +133,7 @@ export class SavantBreakerTile extends LitElement {
     const switchEntity = this.breaker.entities.switch;
     const power = powerEntity ? parseNumber(this.hass?.states[powerEntity]?.state) : undefined;
     const energy = energyEntity ? parseNumber(this.hass?.states[energyEntity]?.state) : undefined;
-    const switchState = switchEntity ? this.hass?.states[switchEntity]?.state : undefined;
+    const switchState = this.optimisticSwitchState ?? (switchEntity ? this.hass?.states[switchEntity]?.state : undefined);
     const available =
       this.breaker.available &&
       (!powerEntity || this.hass?.states[powerEntity]?.state !== "unavailable") &&
@@ -144,7 +145,9 @@ export class SavantBreakerTile extends LitElement {
     if (this.error) return "error";
     if (this.pending) return "pending";
     if (!available) return "unavailable";
-    if (switchState === "off" || power === 0) return "off";
+    if (switchState === "off") return "off";
+    if (switchState === "on") return "on";
+    if (power === 0) return "off";
     return "on";
   }
 

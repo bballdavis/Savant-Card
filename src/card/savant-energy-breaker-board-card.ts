@@ -33,12 +33,14 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   @state() private searchQuery = "";
   @state() private runtimeSortBy: SortBy | undefined;
   @state() private runtimeMobileView: MobileView | undefined;
+  @state() private optimisticSwitchStates = new Map<string, string>();
   private discovery = new BreakerDiscoveryService();
   private statistics = new StatisticsManager();
   private discoveryKey = "";
   private resizeObserver?: ResizeObserver;
   private resizeTarget?: Element;
   private statsRefreshToken = 0;
+  private optimisticResetTimers = new Map<string, number>();
 
   public setConfig(config: PartialSavantBreakerBoardConfig): void {
     this.config = normalizeConfig(config);
@@ -94,6 +96,10 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   public override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.resizeObserver?.disconnect();
+    for (const timer of this.optimisticResetTimers.values()) {
+      window.clearTimeout(timer);
+    }
+    this.optimisticResetTimers.clear();
   }
 
   protected override updated(changed: Map<string, unknown>): void {
@@ -148,15 +154,25 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
           <div class="savant-wordmark" aria-label="Savant">SAVANT</div>
           <div class="board-tools">
             <div class="tool-wrap">
+              <button
+                class=${this.searchOpen ? "chip-tool active" : "chip-tool"}
+                type="button"
+                @click=${() => (this.searchOpen = !this.searchOpen)}
+              >
+                <savant-icon icon="search" aria-hidden="true"></savant-icon>
+                <span class="sr-only">Search</span>
+              </button>
+            </div>
+            <div class="tool-wrap">
               <button class="chip-tool" type="button" @click=${() => (this.sortMenuOpen = !this.sortMenuOpen)}>
                 <savant-icon icon="sort_amount_down" aria-hidden="true"></savant-icon>
                 <span class="sr-only">Sort</span>
               </button>
-            ${this.sortMenuOpen
-              ? html`<div class="tool-popover">
-                  ${SORT_OPTIONS.map(
-                    ({ value, label }) => html`
-                      <button
+              ${this.sortMenuOpen
+                ? html`<div class="tool-popover">
+                    ${SORT_OPTIONS.map(
+                      ({ value, label }) => html`
+                        <button
                           class=${this.effectiveSortBy() === value ? "menu-option selected" : "menu-option"}
                           type="button"
                           @click=${() => this.setRuntimeSort(value)}
@@ -164,30 +180,20 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
                           ${label}
                         </button>
                       `,
-                  )}
-                </div>`
-              : nothing}
-          </div>
-          ${this.stacked
-            ? html`<button
-                class=${this.effectiveMobileView() === "ultra_compact" ? "chip-tool active" : "chip-tool"}
-                type="button"
-                @click=${() => this.toggleMobileView()}
-              >
-                <savant-icon icon="minimize_2" aria-hidden="true"></savant-icon>
-                <span class="sr-only">Toggle ultra-compact mobile view</span>
-              </button>`
-            : nothing}
-          <div class="tool-wrap">
-            <button
-              class=${this.searchOpen ? "chip-tool active" : "chip-tool"}
-              type="button"
-              @click=${() => (this.searchOpen = !this.searchOpen)}
-              >
-                <savant-icon icon="search" aria-hidden="true"></savant-icon>
-                <span class="sr-only">Search</span>
-              </button>
+                    )}
+                  </div>`
+                : nothing}
             </div>
+            ${this.stacked
+              ? html`<button
+                  class=${this.effectiveMobileView() === "ultra_compact" ? "chip-tool active" : "chip-tool"}
+                  type="button"
+                  @click=${() => this.toggleMobileView()}
+                >
+                  <savant-icon icon="minimize_2" aria-hidden="true"></savant-icon>
+                  <span class="sr-only">Toggle ultra-compact mobile view</span>
+                </button>`
+              : nothing}
           </div>
         </div>
         ${this.searchOpen
@@ -229,6 +235,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
                 .statistics=${stat}
                 ?stacked=${this.stacked}
                 .mobileLayout=${this.effectiveMobileView()}
+                .optimisticSwitchState=${this.optimisticSwitchStates.get(breaker.id)}
                 .graphLoading=${Boolean(powerEntity && !stat)}
                 .pending=${this.pendingSwitches.has(breaker.id)}
                 .error=${this.toggleErrors.get(breaker.id) ?? ""}
@@ -355,12 +362,17 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
     const breaker = this.breakers.find((item) => item.id === event.detail.breakerId);
     const entityId = breaker?.entities.switch;
     if (!breaker || !entityId || this.pendingSwitches.has(breaker.id)) return;
+    const currentState = this.optimisticSwitchStates.get(breaker.id) ?? this.hass.states[entityId]?.state;
+    const nextState = currentState === "on" ? "off" : "on";
+    this.setOptimisticSwitchState(breaker.id, nextState);
     this.pendingSwitches = new Set([...this.pendingSwitches, breaker.id]);
     this.toggleErrors.delete(breaker.id);
+    let succeeded = false;
     try {
-      const state = this.hass.states[entityId]?.state;
-      await this.hass.callService("switch", state === "on" ? "turn_off" : "turn_on", { entity_id: entityId });
+      await this.hass.callService("switch", nextState === "off" ? "turn_off" : "turn_on", { entity_id: entityId });
+      succeeded = true;
     } catch {
+      this.clearOptimisticSwitchState(breaker.id);
       const errors = new Map(this.toggleErrors);
       errors.set(breaker.id, "Failed to toggle");
       this.toggleErrors = errors;
@@ -368,8 +380,37 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
       const next = new Set(this.pendingSwitches);
       next.delete(breaker.id);
       this.pendingSwitches = next;
+      if (!succeeded) return;
+      const previousTimer = this.optimisticResetTimers.get(breaker.id);
+      if (previousTimer !== undefined) window.clearTimeout(previousTimer);
+      const timer = window.setTimeout(() => {
+        this.clearOptimisticSwitchState(breaker.id);
+      }, 15000);
+      this.optimisticResetTimers.set(breaker.id, timer);
     }
   };
+
+  private setOptimisticSwitchState(breakerId: string, switchState: string): void {
+    const previousTimer = this.optimisticResetTimers.get(breakerId);
+    if (previousTimer !== undefined) {
+      window.clearTimeout(previousTimer);
+      this.optimisticResetTimers.delete(breakerId);
+    }
+    this.optimisticSwitchStates = new Map(this.optimisticSwitchStates);
+    this.optimisticSwitchStates.set(breakerId, switchState);
+  }
+
+  private clearOptimisticSwitchState(breakerId: string): void {
+    const timer = this.optimisticResetTimers.get(breakerId);
+    if (timer !== undefined) {
+      window.clearTimeout(timer);
+      this.optimisticResetTimers.delete(breakerId);
+    }
+    if (!this.optimisticSwitchStates.has(breakerId)) return;
+    const next = new Map(this.optimisticSwitchStates);
+    next.delete(breakerId);
+    this.optimisticSwitchStates = next;
+  }
 
   public static override styles = [
     sharedStyles,
@@ -421,7 +462,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
         padding: 0;
         display: grid;
         place-items: center;
-        border: 1px solid var(--savant-border);
+        border: 1px solid color-mix(in srgb, var(--savant-border) 72%, var(--primary-text-color));
         border-radius: var(--savant-radius);
         color: var(--primary-text-color);
         background:
@@ -430,6 +471,9 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
             color-mix(in srgb, var(--savant-tile-bg) 94%, white),
             var(--savant-tile-bg)
           );
+        box-shadow:
+          inset 0 0 0 1px color-mix(in srgb, var(--primary-text-color) 12%, transparent),
+          0 1px 2px rgb(0 0 0 / 0.3);
         font-size: 18px;
         line-height: 1;
         cursor: pointer;
@@ -442,11 +486,17 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
 
       .chip-tool:hover,
       .chip-tool:focus-visible {
-        border-color: color-mix(in srgb, var(--savant-border) 70%, var(--primary-text-color));
+        border-color: color-mix(in srgb, var(--savant-border) 45%, var(--primary-text-color));
+        box-shadow:
+          inset 0 0 0 1px color-mix(in srgb, var(--primary-text-color) 18%, transparent),
+          0 2px 5px rgb(0 0 0 / 0.34);
       }
 
       .chip-tool.active {
-        border-color: color-mix(in srgb, var(--savant-border) 55%, var(--primary-color));
+        border-color: color-mix(in srgb, var(--primary-color) 72%, var(--primary-text-color));
+        box-shadow:
+          inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 28%, transparent),
+          0 2px 5px rgb(0 0 0 / 0.34);
       }
 
       .sr-only {

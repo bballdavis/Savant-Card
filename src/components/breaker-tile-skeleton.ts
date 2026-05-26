@@ -103,7 +103,7 @@ export class SavantBreakerTileSkeleton extends LitElement {
       }
 
       .max {
-        left: 92px;
+        left: 80px;
       }
 
       .avg::before,

@@ -24,7 +24,7 @@ export class SavantMetricRow extends LitElement {
     :host {
       display: flex;
       align-items: end;
-      gap: 24px;
+      gap: 12px;
       min-width: 0;
     }
 

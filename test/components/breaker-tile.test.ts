@@ -154,4 +154,43 @@ describe("breaker tile component", () => {
     expect(sparkline.getAttribute("state")).toBe("warning");
     tile.remove();
   });
+
+  it("uses the optimistic switch state before the backend updates", async () => {
+    const tile = document.createElement("savant-breaker-tile") as any;
+    tile.breaker = {
+      id: "breaker-a",
+      name: "Breaker A",
+      controllable: true,
+      entities: { power: "sensor.breaker_a_power", switch: "switch.breaker_a" },
+      available: true,
+      discoveryConfidence: "high",
+    };
+    tile.display = {
+      label: "Breaker A",
+      show_current_power: true,
+      show_average_power: true,
+      show_maximum_power: true,
+      show_energy: false,
+      show_sparkline: true,
+      show_icon: true,
+      show_state: true,
+      show_controls: true,
+      show_area: false,
+      show_circuit_number: false,
+      control_mode: "hold",
+    };
+    tile.hass = {
+      states: {
+        "sensor.breaker_a_power": { entity_id: "sensor.breaker_a_power", state: "0", attributes: {} },
+        "switch.breaker_a": { entity_id: "switch.breaker_a", state: "off", attributes: {} },
+      },
+    };
+    tile.optimisticSwitchState = "on";
+    document.body.append(tile);
+    await tile.updateComplete;
+
+    expect(tile.shadowRoot?.querySelector(".tile")?.className).toContain("on");
+    expect(tile.shadowRoot?.querySelector(".state-text")?.textContent).toContain("On");
+    tile.remove();
+  });
 });
