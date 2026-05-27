@@ -41,13 +41,13 @@ export const sharedStyles = css`
   .board-grid {
     container-type: inline-size;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(var(--tile-min-width, 210px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(var(--tile-min-width, 262px), 1fr));
     align-items: start;
     gap: var(--tile-gap, 12px);
   }
 
   :host([density="compact"]) .board-grid {
-    --tile-min-width: 178px;
+    --tile-min-width: 224px;
     --tile-gap: 10px;
   }
 

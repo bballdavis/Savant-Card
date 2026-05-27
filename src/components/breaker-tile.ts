@@ -261,8 +261,8 @@ export class SavantBreakerTile extends LitElement {
 
     .name {
       display: block;
-      margin-top: 10px;
-      font-size: 17px;
+      margin-top: 5px;
+      font-size: 15px;
       font-weight: 500;
       line-height: 1.22;
       min-height: 1.22em;
@@ -278,7 +278,7 @@ export class SavantBreakerTile extends LitElement {
 
     .subtitle {
       color: var(--savant-muted);
-      font-size: 14px;
+      font-size: 12px;
       line-height: 1.25;
       font-weight: 400;
       min-height: 1.25em;
@@ -293,8 +293,8 @@ export class SavantBreakerTile extends LitElement {
     }
 
     .power {
-      margin-top: 15px;
-      font-size: 31px;
+      margin-top: 11px;
+      font-size: 28px;
       font-weight: 500;
       color: var(--status-color);
       letter-spacing: 0;
@@ -311,7 +311,7 @@ export class SavantBreakerTile extends LitElement {
       position: absolute;
       left: 16px;
       right: 16px;
-      top: 74px;
+      top: 68px;
       margin: 0;
       min-height: 0;
     }
@@ -320,7 +320,7 @@ export class SavantBreakerTile extends LitElement {
       position: absolute;
       left: 16px;
       right: 16px;
-      top: 93px;
+      top: 86px;
       margin: 0;
     }
 
@@ -333,7 +333,7 @@ export class SavantBreakerTile extends LitElement {
       left: 0;
       right: 0;
       bottom: 58px;
-      top: 126px;
+      top: 110px;
       height: auto;
       min-height: 0;
       margin: 0;
@@ -345,10 +345,10 @@ export class SavantBreakerTile extends LitElement {
       position: absolute;
       left: 16px;
       right: 74px;
-      bottom: 15px;
+      bottom: 14px;
       display: flex;
       align-items: end;
-      gap: 12px;
+      gap: 10px;
       min-width: 0;
       z-index: 2;
     }

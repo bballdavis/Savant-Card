@@ -1248,8 +1248,8 @@ w.styles = k`
 
     .name {
       display: block;
-      margin-top: 10px;
-      font-size: 17px;
+      margin-top: 5px;
+      font-size: 15px;
       font-weight: 500;
       line-height: 1.22;
       min-height: 1.22em;
@@ -1265,7 +1265,7 @@ w.styles = k`
 
     .subtitle {
       color: var(--savant-muted);
-      font-size: 14px;
+      font-size: 12px;
       line-height: 1.25;
       font-weight: 400;
       min-height: 1.25em;
@@ -1280,8 +1280,8 @@ w.styles = k`
     }
 
     .power {
-      margin-top: 15px;
-      font-size: 31px;
+      margin-top: 11px;
+      font-size: 28px;
       font-weight: 500;
       color: var(--status-color);
       letter-spacing: 0;
@@ -1298,7 +1298,7 @@ w.styles = k`
       position: absolute;
       left: 16px;
       right: 16px;
-      top: 74px;
+      top: 68px;
       margin: 0;
       min-height: 0;
     }
@@ -1307,7 +1307,7 @@ w.styles = k`
       position: absolute;
       left: 16px;
       right: 16px;
-      top: 93px;
+      top: 86px;
       margin: 0;
     }
 
@@ -1320,7 +1320,7 @@ w.styles = k`
       left: 0;
       right: 0;
       bottom: 58px;
-      top: 126px;
+      top: 110px;
       height: auto;
       min-height: 0;
       margin: 0;
@@ -1332,10 +1332,10 @@ w.styles = k`
       position: absolute;
       left: 16px;
       right: 74px;
-      bottom: 15px;
+      bottom: 14px;
       display: flex;
       align-items: end;
-      gap: 12px;
+      gap: 10px;
       min-width: 0;
       z-index: 2;
     }
@@ -2610,13 +2610,13 @@ const vr = k`
   .board-grid {
     container-type: inline-size;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(var(--tile-min-width, 210px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(var(--tile-min-width, 262px), 1fr));
     align-items: start;
     gap: var(--tile-gap, 12px);
   }
 
   :host([density="compact"]) .board-grid {
-    --tile-min-width: 178px;
+    --tile-min-width: 224px;
     --tile-gap: 10px;
   }
 
@@ -2966,18 +2966,19 @@ b.styles = [
         padding: 0;
         display: grid;
         place-items: center;
-        border: 1px solid color-mix(in srgb, var(--savant-border) 72%, var(--primary-text-color));
+        border: 1px solid color-mix(in srgb, var(--primary-text-color) 56%, var(--divider-color));
         border-radius: var(--savant-radius);
         color: var(--primary-text-color);
         background:
           linear-gradient(
             145deg,
-            color-mix(in srgb, var(--savant-tile-bg) 94%, white),
+            color-mix(in srgb, var(--savant-tile-bg) 86%, white),
             var(--savant-tile-bg)
           );
         box-shadow:
-          inset 0 0 0 1px color-mix(in srgb, var(--primary-text-color) 12%, transparent),
-          0 1px 2px rgb(0 0 0 / 0.3);
+          inset 0 0 0 1px rgb(255 255 255 / 0.08),
+          0 0 0 1px rgb(0 0 0 / 0.25),
+          0 2px 4px rgb(0 0 0 / 0.28);
         font-size: 18px;
         line-height: 1;
         cursor: pointer;
@@ -2990,17 +2991,19 @@ b.styles = [
 
       .chip-tool:hover,
       .chip-tool:focus-visible {
-        border-color: color-mix(in srgb, var(--savant-border) 45%, var(--primary-text-color));
+        border-color: color-mix(in srgb, var(--primary-text-color) 72%, white);
         box-shadow:
-          inset 0 0 0 1px color-mix(in srgb, var(--primary-text-color) 18%, transparent),
-          0 2px 5px rgb(0 0 0 / 0.34);
+          inset 0 0 0 1px rgb(255 255 255 / 0.12),
+          0 0 0 1px color-mix(in srgb, var(--primary-text-color) 28%, transparent),
+          0 3px 6px rgb(0 0 0 / 0.34);
       }
 
       .chip-tool.active {
-        border-color: color-mix(in srgb, var(--primary-color) 72%, var(--primary-text-color));
+        border-color: color-mix(in srgb, var(--primary-color) 82%, var(--primary-text-color));
         box-shadow:
-          inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 28%, transparent),
-          0 2px 5px rgb(0 0 0 / 0.34);
+          inset 0 0 0 1px rgb(255 255 255 / 0.1),
+          0 0 0 1px color-mix(in srgb, var(--primary-color) 42%, transparent),
+          0 3px 6px rgb(0 0 0 / 0.34);
       }
 
       .sr-only {
