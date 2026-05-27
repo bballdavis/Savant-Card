@@ -462,19 +462,20 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
         padding: 0;
         display: grid;
         place-items: center;
-        border: 1px solid color-mix(in srgb, var(--primary-text-color) 56%, var(--divider-color));
+        border: 1px solid color-mix(in srgb, var(--primary-text-color) 70%, var(--divider-color));
         border-radius: var(--savant-radius);
         color: var(--primary-text-color);
         background:
           linear-gradient(
             145deg,
-            color-mix(in srgb, var(--savant-tile-bg) 86%, white),
+            color-mix(in srgb, var(--savant-tile-bg) 84%, white),
             var(--savant-tile-bg)
           );
         box-shadow:
-          inset 0 0 0 1px rgb(255 255 255 / 0.08),
-          0 0 0 1px rgb(0 0 0 / 0.25),
-          0 2px 4px rgb(0 0 0 / 0.28);
+          inset 0 1px 0 rgb(255 255 255 / 0.14),
+          inset 0 0 0 1px color-mix(in srgb, var(--primary-text-color) 18%, transparent),
+          0 0 0 1px color-mix(in srgb, var(--ha-card-background, var(--card-background-color)) 56%, white),
+          0 2px 5px rgb(0 0 0 / 0.26);
         font-size: 18px;
         line-height: 1;
         cursor: pointer;
@@ -487,19 +488,21 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
 
       .chip-tool:hover,
       .chip-tool:focus-visible {
-        border-color: color-mix(in srgb, var(--primary-text-color) 72%, white);
+        border-color: color-mix(in srgb, var(--primary-text-color) 82%, white);
         box-shadow:
-          inset 0 0 0 1px rgb(255 255 255 / 0.12),
-          0 0 0 1px color-mix(in srgb, var(--primary-text-color) 28%, transparent),
-          0 3px 6px rgb(0 0 0 / 0.34);
+          inset 0 1px 0 rgb(255 255 255 / 0.2),
+          inset 0 0 0 1px color-mix(in srgb, var(--primary-text-color) 30%, transparent),
+          0 0 0 1px color-mix(in srgb, var(--primary-text-color) 36%, transparent),
+          0 3px 6px rgb(0 0 0 / 0.3);
       }
 
       .chip-tool.active {
-        border-color: color-mix(in srgb, var(--primary-color) 82%, var(--primary-text-color));
+        border-color: color-mix(in srgb, var(--primary-color) 84%, var(--primary-text-color));
         box-shadow:
-          inset 0 0 0 1px rgb(255 255 255 / 0.1),
-          0 0 0 1px color-mix(in srgb, var(--primary-color) 42%, transparent),
-          0 3px 6px rgb(0 0 0 / 0.34);
+          inset 0 1px 0 rgb(255 255 255 / 0.2),
+          inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 32%, transparent),
+          0 0 0 1px color-mix(in srgb, var(--primary-color) 54%, transparent),
+          0 3px 6px rgb(0 0 0 / 0.3);
       }
 
       .sr-only {

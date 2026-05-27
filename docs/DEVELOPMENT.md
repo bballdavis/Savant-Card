@@ -29,6 +29,10 @@ The card follows current custom card conventions:
 
 The board uses CSS grid and container queries. Wide containers render portrait breaker tiles. Narrow containers render horizontal stacked tiles with a slim vertical status indicator on the left. This is container-based because a card can be narrow even on a wide browser.
 
+## Branding
+
+Visual and brand system decisions are documented in `docs/design/BRANDING.md`, including color/state semantics, token usage, chip and tile edge treatment, typography hierarchy, spacing rhythm, and responsive behavior expectations.
+
 ## Data Flow
 
 1. The card normalizes configuration.
