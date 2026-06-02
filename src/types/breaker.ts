@@ -13,6 +13,14 @@ export interface DiscoveredBreaker {
   available: boolean;
   discoveryConfidence: "high" | "medium" | "manual";
   discoveryNotes?: string[];
+  isSem?: boolean;
+  semMetrics?: {
+    homeLoad?: string;
+    solar?: string;
+    batteryPower?: string;
+    batterySoc?: string;
+    grid?: string;
+  };
 }
 
 export interface ResolvedBreakerDisplay {

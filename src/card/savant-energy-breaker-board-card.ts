@@ -5,6 +5,7 @@ import "../components/breaker-tile-skeleton";
 import "../components/board-empty-state";
 import "../components/board-error-state";
 import "../components/savant-icon";
+import "../components/sem-chip";
 import { BreakerDiscoveryService } from "../data/breaker-discovery-service";
 import { StatisticsManager } from "../data/statistics-manager";
 import { DEFAULT_CONFIG } from "../config/defaults";
@@ -215,12 +216,16 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   }
 
   private renderBreakers() {
-    const grouped = groupBreakers(this.visibleBreakers(), this.config);
+    const semBreakers = this.visibleSemBreakers();
+    const grouped = groupBreakers(this.visibleStandardBreakers(), this.config);
     return html`
       <div
         class=${`board-grid ${this.stacked ? "stacked" : ""}`}
         @savant-breaker-toggle=${this.handleToggle}
       >
+        ${semBreakers.map(
+          (breaker) => html`<savant-sem-chip .hass=${this.hass} .breaker=${breaker}></savant-sem-chip>`,
+        )}
         ${grouped.map(
           ([group, breakers]) => html`
             ${group ? html`<h3 class="group-title">${group}</h3>` : nothing}
@@ -278,7 +283,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
     const token = ++this.statsRefreshToken;
     const entityIds = [
       ...new Set(
-        this.visibleBreakers()
+          this.visibleStandardBreakers()
           .map((breaker) => breaker.entities.power)
           .filter((entityId): entityId is string => Boolean(entityId)),
       ),
@@ -315,6 +320,15 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
       this.stats,
       this.effectiveSortBy(),
     );
+  }
+
+  private visibleStandardBreakers(): DiscoveredBreaker[] {
+    return this.visibleBreakers().filter((breaker) => !breaker.isSem);
+  }
+
+  private visibleSemBreakers(): DiscoveredBreaker[] {
+    if (this.config.display.hide_sem_chip) return [];
+    return this.visibleBreakers().filter((breaker) => breaker.isSem);
   }
 
   private effectiveSortBy(): SortBy {

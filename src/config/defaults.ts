@@ -18,6 +18,7 @@ export const DEFAULT_CONFIG: SavantBreakerBoardConfig = {
   },
   display: {
     show_title: true,
+    hide_sem_chip: true,
     show_current_power: true,
     show_average_power: true,
     show_maximum_power: true,

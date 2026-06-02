@@ -10,6 +10,7 @@ describe("normalizeConfig", () => {
     expect(config.layout.density).toBe("compact");
     expect(config.layout.mobile_view).toBe("standard");
     expect(config.display.show_title).toBe(true);
+    expect(config.display.hide_sem_chip).toBe(true);
   });
 
   it("accepts ultra-compact mobile view and title visibility", () => {

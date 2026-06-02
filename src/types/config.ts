@@ -22,6 +22,7 @@ export interface LayoutConfig {
 
 export interface DisplayConfig {
   show_title: boolean;
+  hide_sem_chip: boolean;
   show_current_power: boolean;
   show_average_power: boolean;
   show_maximum_power: boolean;

@@ -26,6 +26,7 @@ const LABELS: Record<string, string> = {
   mobile_view: "Mobile view",
   display: "Default tile details",
   show_title: "Title section",
+  hide_sem_chip: "Hide SEM chip",
   show_current_power: "Current power",
   show_average_power: "Average power",
   show_maximum_power: "Maximum power",
@@ -100,6 +101,7 @@ export function getSavantBreakerBoardConfigForm(): LovelaceCardConfigForm {
         title: "Default Tile Details",
         schema: [
           { name: "show_title", selector: { boolean: {} } },
+          { name: "hide_sem_chip", selector: { boolean: {} } },
           { name: "show_current_power", selector: { boolean: {} } },
           { name: "show_average_power", selector: { boolean: {} } },
           { name: "show_maximum_power", selector: { boolean: {} } },

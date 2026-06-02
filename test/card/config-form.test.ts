@@ -35,6 +35,7 @@ describe("SavantEnergyBreakerBoardCard.getConfigForm", () => {
         "density",
         "mobile_view",
         "show_title",
+        "hide_sem_chip",
         "show_current_power",
         "show_average_power",
         "show_maximum_power",

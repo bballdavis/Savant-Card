@@ -43,6 +43,9 @@ export class SavantEnergyBreakerBoardCardEditor extends LitElement {
           ${this.switch("Show title section", this.config.display.show_title, (value) =>
             this.patch({ display: { ...this.config.display, show_title: value } }),
           )}
+          ${this.switch("Hide SEM chip", this.config.display.hide_sem_chip, (value) =>
+            this.patch({ display: { ...this.config.display, hide_sem_chip: value } }),
+          )}
           ${this.switch("Auto-discovery", this.config.discovery.enabled, (value) =>
             this.patch({ discovery: { ...this.config.discovery, enabled: value } }),
           )}

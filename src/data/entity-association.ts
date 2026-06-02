@@ -102,6 +102,8 @@ function buildBreakerFromEntries(
   const attrs = representative ? states[representative.entity_id]?.attributes : {};
   const circuitNumber = parseCircuitNumber(attrs?.circuit_number ?? attrs?.circuit);
   const panelName = firstString(attrs?.panel_name, attrs?.panel, device?.model);
+  const isSem = isSemDevice(device, entries);
+  const semMetrics = isSem ? detectSemMetrics(entries, states) : undefined;
 
   if (!mapped.power) notes.push("No power sensor with device_class: power was found.");
   if (!mapped.switch) notes.push("No switch entity was found for breaker control.");
@@ -119,7 +121,42 @@ function buildBreakerFromEntries(
     available: Object.values(mapped).some((entityId) => states[entityId]?.state !== "unavailable"),
     discoveryConfidence: mapped.power && mapped.switch ? "high" : "medium",
     discoveryNotes: notes.length ? notes : undefined,
+    isSem,
+    semMetrics,
   };
+}
+
+function isSemDevice(device: DeviceRegistryEntry | undefined, entries: EntityRegistryEntry[]): boolean {
+  const deviceText = `${device?.name ?? ""} ${device?.name_by_user ?? ""} ${device?.model ?? ""} ${device?.manufacturer ?? ""}`.toLowerCase();
+  if (deviceText.includes("sem") || deviceText.includes("energy monitor") || deviceText.includes("energy hub")) {
+    return true;
+  }
+  return entries.some((entry) => {
+    const text = `${entry.name ?? ""} ${entry.original_name ?? ""} ${entry.entity_id}`.toLowerCase();
+    return text.includes("sem");
+  });
+}
+
+function detectSemMetrics(
+  entries: EntityRegistryEntry[],
+  states: Record<string, HassEntity>,
+): DiscoveredBreaker["semMetrics"] {
+  const metrics: NonNullable<DiscoveredBreaker["semMetrics"]> = {};
+  for (const entry of entries) {
+    const state = states[entry.entity_id];
+    const label = `${entry.name ?? ""} ${entry.original_name ?? ""} ${state?.attributes?.friendly_name ?? ""} ${entry.entity_id}`.toLowerCase();
+    const deviceClass = String(state?.attributes?.device_class ?? "").toLowerCase();
+    if (!metrics.homeLoad && /(home|total).*(load|consumption)|consumption|house load/.test(label)) metrics.homeLoad = entry.entity_id;
+    if (!metrics.solar && /solar|pv/.test(label)) metrics.solar = entry.entity_id;
+    if (!metrics.grid && /grid|utility|mains/.test(label)) metrics.grid = entry.entity_id;
+    if (!metrics.batterySoc && (deviceClass === "battery" || /soc|state.?of.?charge|battery.*%/.test(label))) {
+      metrics.batterySoc = entry.entity_id;
+    }
+    if (!metrics.batteryPower && /battery/.test(label) && !/soc|state.?of.?charge|%/.test(label)) {
+      metrics.batteryPower = entry.entity_id;
+    }
+  }
+  return Object.values(metrics).some(Boolean) ? metrics : undefined;
 }
 
 function firstString(...values: unknown[]): string | undefined {
