@@ -4,23 +4,44 @@ export const sharedStyles = css`
   :host {
     display: block;
     color: var(--primary-text-color);
-    --savant-tile-bg: color-mix(in srgb, var(--ha-card-background, var(--card-background-color, #1f2528)) 88%, black);
-    --savant-tile-fg: var(--primary-text-color, #f5f7f8);
+    --savant-card-bg: var(--ha-card-background, var(--card-background-color, #ffffff));
+    --savant-app-bg: var(--primary-background-color, #f4f6f8);
+    --savant-tile-bg: color-mix(in srgb, var(--savant-card-bg) 88%, white);
+    --savant-tile-bg-strong: color-mix(in srgb, var(--savant-card-bg) 78%, white);
+    --savant-surface-tint: color-mix(in srgb, var(--primary-color, #4caf50) 6%, transparent);
+    --savant-tile-fg: var(--primary-text-color, #1d2327);
     --savant-muted: var(--secondary-text-color, #a9b0b4);
     --savant-success: var(--success-color, #7acb54);
     --savant-caution: var(--savant-caution-color, #f5cc4d);
     --savant-warning: var(--warning-color, #ff8f22);
     --savant-error: var(--error-color, #f05246);
     --savant-disabled: var(--disabled-text-color, #8d9499);
-    --savant-border: color-mix(in srgb, var(--divider-color, #6f767b) 35%, transparent);
+    --savant-border: color-mix(in srgb, var(--divider-color, #6f767b) 24%, transparent);
+    --savant-border-strong: color-mix(in srgb, var(--divider-color, #6f767b) 42%, transparent);
+    --savant-shadow-sm: 0 10px 24px rgb(15 23 42 / 0.08);
+    --savant-shadow-md: 0 14px 34px rgb(15 23 42 / 0.1);
     --savant-radius: var(--savant-breaker-radius, 12px);
     font-family: var(--paper-font-body1_-_font-family, inherit);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :host {
+      --savant-card-bg: var(--ha-card-background, var(--card-background-color, #1f2528));
+      --savant-app-bg: var(--primary-background-color, #161b1e);
+      --savant-tile-bg: color-mix(in srgb, var(--savant-card-bg) 88%, black);
+      --savant-tile-bg-strong: color-mix(in srgb, var(--savant-card-bg) 76%, black);
+      --savant-tile-fg: var(--primary-text-color, #f5f7f8);
+      --savant-border: color-mix(in srgb, var(--divider-color, #6f767b) 35%, transparent);
+      --savant-border-strong: color-mix(in srgb, var(--divider-color, #6f767b) 52%, transparent);
+      --savant-shadow-sm: 0 10px 24px rgb(0 0 0 / 0.2);
+      --savant-shadow-md: 0 16px 36px rgb(0 0 0 / 0.24);
+    }
   }
 
   ha-card {
     overflow: hidden;
     padding: 16px;
-    background: var(--ha-card-background, var(--card-background-color));
+    background: var(--savant-card-bg);
   }
 
   .board-header {

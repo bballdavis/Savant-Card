@@ -43,7 +43,15 @@ export class SavantSemChip extends LitElement {
       padding: 12px;
       border: 1px solid var(--savant-border);
       border-radius: var(--savant-radius);
-      background: var(--savant-tile-bg);
+      background:
+        linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--savant-tile-bg-strong) 72%, var(--savant-surface-tint)),
+          var(--savant-tile-bg)
+        );
+      box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 72%, transparent),
+        var(--savant-shadow-sm);
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       grid-template-rows: auto auto auto;
@@ -55,7 +63,7 @@ export class SavantSemChip extends LitElement {
       content: "";
       position: absolute;
       pointer-events: none;
-      background: color-mix(in srgb, var(--primary-text-color) 26%, transparent);
+      background: color-mix(in srgb, var(--primary-text-color) 18%, transparent);
     }
     .sem-chip::before { left: 50%; top: 42px; width: 1px; height: 84px; transform: translateX(-0.5px); }
     .sem-chip::after { left: 22%; right: 22%; top: 84px; height: 1px; }
@@ -73,7 +81,8 @@ export class SavantSemChip extends LitElement {
       text-align: center;
       padding: 6px;
       border-radius: 10px;
-      background: color-mix(in srgb, var(--ha-card-background, var(--card-background-color)) 34%, transparent);
+      background: color-mix(in srgb, var(--savant-card-bg) 78%, var(--savant-app-bg));
+      box-shadow: inset 0 1px 0 color-mix(in srgb, white 72%, transparent);
     }
     .metric savant-icon { width: 14px; height: 14px; }
     .metric span { font-size: 11px; color: var(--secondary-text-color); }
