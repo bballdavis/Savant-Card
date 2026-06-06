@@ -179,6 +179,13 @@ export class SavantBreakerTile extends LitElement {
       aspect-ratio: 1 / 1;
       --status-color: var(--savant-success);
       --control-color: var(--status-color);
+      --savant-text-halo:
+        0 0 2px var(--savant-tile-bg),
+        0 1px 1px var(--savant-tile-bg),
+        1px 0 1px var(--savant-tile-bg),
+        0 -1px 1px var(--savant-tile-bg),
+        -1px 0 1px var(--savant-tile-bg);
+      --savant-text-outline-color: var(--savant-tile-bg);
       --savant-font-family:
         Inter, "SF Pro Display", "SF Pro Text", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
@@ -264,6 +271,9 @@ export class SavantBreakerTile extends LitElement {
       white-space: nowrap;
       position: relative;
       z-index: 1;
+      text-shadow: var(--savant-text-halo);
+      -webkit-text-stroke: 4px var(--savant-text-outline-color);
+      paint-order: stroke fill;
     }
 
     .subtitle {
@@ -278,6 +288,8 @@ export class SavantBreakerTile extends LitElement {
       white-space: nowrap;
       position: relative;
       z-index: 1;
+      -webkit-text-stroke: 3px var(--savant-text-outline-color);
+      paint-order: stroke fill;
     }
 
     .power {
@@ -290,6 +302,9 @@ export class SavantBreakerTile extends LitElement {
       white-space: nowrap;
       position: relative;
       z-index: 1;
+      text-shadow: var(--savant-text-halo);
+      -webkit-text-stroke: 4px var(--savant-text-outline-color);
+      paint-order: stroke fill;
     }
 
     :host(:not([stacked])) .subtitle {

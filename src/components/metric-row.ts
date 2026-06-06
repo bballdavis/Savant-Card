@@ -84,6 +84,8 @@ export class SavantMetricRow extends LitElement {
       font-weight: 500;
       line-height: 1.1;
       white-space: nowrap;
+      -webkit-text-stroke: 2px var(--savant-text-outline-color);
+      paint-order: stroke fill;
     }
 
   `;
