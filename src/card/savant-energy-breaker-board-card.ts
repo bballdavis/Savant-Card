@@ -479,16 +479,8 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
         border: 1px solid color-mix(in srgb, var(--primary-text-color) 70%, var(--divider-color));
         border-radius: var(--savant-radius);
         color: var(--primary-text-color);
-        background:
-          linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--savant-tile-bg-strong) 74%, var(--savant-surface-tint)),
-            var(--savant-tile-bg)
-          );
-        box-shadow:
-          inset 0 1px 0 color-mix(in srgb, white 72%, transparent),
-          inset 0 0 0 1px color-mix(in srgb, var(--primary-text-color) 18%, transparent),
-          var(--savant-shadow-sm);
+        background: var(--savant-tile-bg);
+        box-shadow: var(--savant-shadow-sm);
         font-size: 18px;
         line-height: 1;
         cursor: pointer;
@@ -502,20 +494,12 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
       .chip-tool:hover,
       .chip-tool:focus-visible {
         border-color: color-mix(in srgb, var(--primary-text-color) 82%, white);
-        box-shadow:
-          inset 0 1px 0 color-mix(in srgb, white 72%, transparent),
-          inset 0 0 0 1px color-mix(in srgb, var(--primary-text-color) 30%, transparent),
-          0 0 0 1px color-mix(in srgb, var(--primary-text-color) 18%, transparent),
-          var(--savant-shadow-md);
+        box-shadow: var(--savant-shadow-md);
       }
 
       .chip-tool.active {
         border-color: color-mix(in srgb, var(--primary-color) 84%, var(--primary-text-color));
-        box-shadow:
-          inset 0 1px 0 color-mix(in srgb, white 72%, transparent),
-          inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 32%, transparent),
-          0 0 0 1px color-mix(in srgb, var(--primary-color) 36%, transparent),
-          var(--savant-shadow-md);
+        box-shadow: var(--savant-shadow-md);
       }
 
       .sr-only {
@@ -544,13 +528,8 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
         padding: 0 12px;
         border: 1px solid var(--savant-border);
         border-radius: var(--savant-radius);
-        background:
-          linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--savant-tile-bg-strong) 74%, var(--savant-surface-tint)),
-            var(--savant-tile-bg)
-          );
-        box-shadow: inset 0 1px 0 color-mix(in srgb, white 72%, transparent);
+        background: var(--savant-tile-bg);
+        box-shadow: var(--savant-shadow-sm);
       }
 
       .board-search-shell savant-icon {
@@ -582,7 +561,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
         padding: 8px;
         border: 1px solid var(--savant-border-strong);
         border-radius: var(--savant-radius);
-        background: color-mix(in srgb, var(--savant-card-bg) 94%, var(--savant-app-bg));
+        background: var(--savant-card-bg);
         box-shadow: var(--savant-shadow-md);
       }
 
@@ -598,7 +577,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
 
       .menu-option.selected,
       .menu-option:hover {
-        background: color-mix(in srgb, var(--savant-tile-bg) 80%, var(--savant-surface-tint));
+        background: color-mix(in srgb, var(--savant-tile-bg) 92%, var(--primary-text-color));
       }
 
       .search-input {

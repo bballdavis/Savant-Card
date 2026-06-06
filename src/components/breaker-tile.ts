@@ -179,10 +179,6 @@ export class SavantBreakerTile extends LitElement {
       aspect-ratio: 1 / 1;
       --status-color: var(--savant-success);
       --control-color: var(--status-color);
-      --savant-text-halo:
-        0 1px 0 color-mix(in srgb, var(--savant-card-bg) 82%, transparent),
-        0 0 12px color-mix(in srgb, var(--savant-card-bg) 72%, transparent);
-      --savant-text-outline-color: color-mix(in srgb, var(--savant-card-bg) 82%, transparent);
       --savant-font-family:
         Inter, "SF Pro Display", "SF Pro Text", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
@@ -202,13 +198,11 @@ export class SavantBreakerTile extends LitElement {
       background:
         linear-gradient(
           180deg,
-          color-mix(in srgb, var(--savant-tile-bg-strong) 70%, var(--savant-surface-tint)),
+          color-mix(in srgb, var(--savant-tile-bg-strong) 60%, var(--savant-surface-tint)),
           var(--savant-tile-bg)
         );
       color: var(--savant-tile-fg);
-      box-shadow:
-        inset 0 1px 0 color-mix(in srgb, white 70%, transparent),
-        var(--savant-shadow-sm);
+      box-shadow: var(--savant-shadow-sm);
       font-family: var(--savant-breaker-font-family, var(--savant-font-family));
       font-weight: 400;
       cursor: pointer;
@@ -270,9 +264,6 @@ export class SavantBreakerTile extends LitElement {
       white-space: nowrap;
       position: relative;
       z-index: 1;
-      text-shadow: var(--savant-text-halo);
-      -webkit-text-stroke: 2px var(--savant-text-outline-color);
-      paint-order: stroke fill;
     }
 
     .subtitle {
@@ -287,8 +278,6 @@ export class SavantBreakerTile extends LitElement {
       white-space: nowrap;
       position: relative;
       z-index: 1;
-      -webkit-text-stroke: 1px var(--savant-text-outline-color);
-      paint-order: stroke fill;
     }
 
     .power {
@@ -301,9 +290,6 @@ export class SavantBreakerTile extends LitElement {
       white-space: nowrap;
       position: relative;
       z-index: 1;
-      text-shadow: var(--savant-text-halo);
-      -webkit-text-stroke: 2px var(--savant-text-outline-color);
-      paint-order: stroke fill;
     }
 
     :host(:not([stacked])) .subtitle {

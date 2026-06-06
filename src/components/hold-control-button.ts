@@ -90,15 +90,13 @@ export class SavantHoldControlButton extends LitElement {
       border: 2px solid currentColor;
       background:
         conic-gradient(currentColor var(--progress, 0deg), transparent 0),
-        color-mix(in srgb, var(--savant-tile-bg-strong) 82%, var(--savant-surface-tint));
+        var(--savant-tile-bg);
       color: var(--control-color, var(--savant-success));
       display: grid;
       place-items: center;
       cursor: pointer;
       touch-action: none;
-      box-shadow:
-        inset 0 1px 0 color-mix(in srgb, white 72%, transparent),
-        var(--savant-shadow-sm);
+      box-shadow: var(--savant-shadow-sm);
     }
 
     :host-context(savant-breaker-tile[stacked]) button {
@@ -119,7 +117,7 @@ export class SavantHoldControlButton extends LitElement {
       display: grid;
       place-items: center;
       border-radius: 999px;
-      background: color-mix(in srgb, var(--savant-card-bg) 92%, white);
+      background: var(--savant-card-bg);
       line-height: 1;
     }
 

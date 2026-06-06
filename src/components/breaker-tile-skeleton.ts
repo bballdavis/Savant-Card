@@ -28,22 +28,15 @@ export class SavantBreakerTileSkeleton extends LitElement {
   public static override styles = [
     skeletonStyles,
     css`
-    :host {
-      position: relative;
-      display: grid;
-      aspect-ratio: 1 / 1;
-      min-height: 0;
-      padding: 16px;
-      border-radius: var(--savant-radius);
-      background:
-        linear-gradient(
-          180deg,
-          color-mix(in srgb, var(--savant-tile-bg-strong) 70%, var(--savant-surface-tint)),
-          var(--savant-tile-bg)
-        );
-      box-shadow:
-        inset 0 1px 0 color-mix(in srgb, white 72%, transparent),
-        var(--savant-shadow-sm);
+      :host {
+        position: relative;
+        display: grid;
+        aspect-ratio: 1 / 1;
+        min-height: 0;
+        padding: 16px;
+        border-radius: var(--savant-radius);
+        background: var(--savant-tile-bg);
+        box-shadow: var(--savant-shadow-sm);
       }
 
       .status {
