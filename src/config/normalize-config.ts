@@ -4,6 +4,7 @@ import type {
   BreakerOverrideConfig,
   PartialSavantBreakerBoardConfig,
   SavantBreakerBoardConfig,
+  ScenesConfig,
 } from "../types/config";
 import type { DiscoveredBreaker, ResolvedBreakerDisplay } from "../types/breaker";
 
@@ -41,6 +42,11 @@ export function normalizeConfig(
     ? [...new Set(merged.excluded_breakers)]
     : [];
   merged.breaker_overrides = merged.breaker_overrides ?? {};
+  merged.scenes = merged.scenes ?? { enabled: true } as ScenesConfig;
+  merged.scenes.enabled = merged.scenes.enabled !== false;
+  if (typeof merged.scenes.battery_capacity_kwh !== 'number' || merged.scenes.battery_capacity_kwh <= 0) {
+    merged.scenes.battery_capacity_kwh = undefined;
+  }
   merged.manual_breakers = Array.isArray(merged.manual_breakers) ? merged.manual_breakers : [];
   return merged;
 }

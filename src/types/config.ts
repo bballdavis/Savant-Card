@@ -70,6 +70,11 @@ export interface ManualBreakerConfig {
   circuit_number?: number;
 }
 
+export interface ScenesConfig {
+  enabled: boolean;
+  battery_capacity_kwh?: number;
+}
+
 export interface SavantBreakerBoardConfig {
   type?: "custom:savant-energy-breaker-board-card";
   title?: string;
@@ -81,6 +86,7 @@ export interface SavantBreakerBoardConfig {
   excluded_breakers: string[];
   breaker_overrides: Record<string, BreakerOverrideConfig>;
   manual_breakers: ManualBreakerConfig[];
+  scenes: ScenesConfig;
 }
 
 export type PartialSavantBreakerBoardConfig = Partial<

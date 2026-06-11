@@ -10,6 +10,8 @@ const ICONS: Record<string, string> = {
   sort_amount_down:
     "M3 7h10v2H3V7m0 4h7v2H3v-2m0 4h4v2H3v-2m14-7 4 4h-3v6h-2v-6h-3l4-4Z",
   minimize_2: "",
+  layout_dashboard:
+    "M4 3h7v7H4V3m0 11h7v7H4v-7m9-11h7v7h-7V3m0 11h7v7h-7v-7Z",
 };
 
 @customElement("savant-icon")

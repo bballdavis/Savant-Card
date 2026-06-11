@@ -5,6 +5,8 @@ import "../components/breaker-tile-skeleton";
 import "../components/board-empty-state";
 import "../components/board-error-state";
 import "../components/savant-icon";
+import "../components/scene-dialog";
+import type { ScenesConfig } from "../types/scene";
 import { BreakerDiscoveryService } from "../data/breaker-discovery-service";
 import { StatisticsManager } from "../data/statistics-manager";
 import { DEFAULT_CONFIG } from "../config/defaults";
@@ -29,6 +31,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   @state() private toggleErrors = new Map<string, string>();
   @state() private stacked = false;
   @state() private sortMenuOpen = false;
+  @state() private sceneOpen = false;
   @state() private searchOpen = false;
   @state() private searchQuery = "";
   @state() private runtimeSortBy: SortBy | undefined;
@@ -93,7 +96,13 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
     this.observeLayoutTarget();
   }
 
+  public override connectedCallback(): void {
+    super.connectedCallback();
+    document.addEventListener("keydown", this.handleKeyDown);
+  }
+
   public override disconnectedCallback(): void {
+    document.removeEventListener("keydown", this.handleKeyDown);
     super.disconnectedCallback();
     this.resizeObserver?.disconnect();
     for (const timer of this.optimisticResetTimers.values()) {
@@ -136,6 +145,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
             : this.visibleBreakers().length
               ? this.renderBreakers()
               : html`<savant-board-empty-state></savant-board-empty-state>`}
+        ${this.renderSceneDialog()}
       </ha-card>
     `;
   }
@@ -193,6 +203,19 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
                   <savant-icon icon="minimize_2" aria-hidden="true"></savant-icon>
                   <span class="sr-only">Toggle ultra-compact mobile view</span>
                 </button>`
+              : nothing}
+            ${this.scenesConfig.enabled !== false
+              ? html`<div class="tool-wrap">
+                  <button
+                    class="chip-tool"
+                    type="button"
+                    @click=${this.openSceneDialog}
+                    aria-label="Scenes"
+                  >
+                    <savant-icon icon="layout_dashboard" aria-hidden="true"></savant-icon>
+                    <span class="sr-only">Scenes</span>
+                  </button>
+                </div>`
               : nothing}
           </div>
         </div>
@@ -317,6 +340,10 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
     );
   }
 
+  private get scenesConfig(): ScenesConfig {
+    return (this.config as any).scenes ?? { enabled: true };
+  }
+
   private effectiveSortBy(): SortBy {
     return this.runtimeSortBy ?? this.config.layout.sort_by;
   }
@@ -411,6 +438,36 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
     next.delete(breakerId);
     this.optimisticSwitchStates = next;
   }
+
+  private openSceneDialog(event: Event): void {
+    event.stopPropagation();
+    this.sceneOpen = true;
+  }
+
+  private closeSceneDialog(): void {
+    this.sceneOpen = false;
+  }
+
+  private renderSceneDialog() {
+    if (!this.sceneOpen) return nothing;
+    return html`
+      <savant-scene-dialog
+        .hass=${this.hass}
+        .breakers=${this.breakers}
+        .stats=${this.stats}
+        .batteryCapacityKwh=${this.scenesConfig.battery_capacity_kwh}
+        .open=${this.sceneOpen}
+        .stacked=${this.stacked}
+        @savant-scene-close=${this.closeSceneDialog}
+      ></savant-scene-dialog>
+    `;
+  }
+
+  private handleKeyDown = (event: KeyboardEvent): void => {
+    if (event.key === "Escape" && this.sceneOpen) {
+      this.sceneOpen = false;
+    }
+  };
 
   public static override styles = [
     sharedStyles,
