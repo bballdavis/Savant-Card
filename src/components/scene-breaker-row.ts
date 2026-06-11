@@ -111,6 +111,7 @@ export class SavantSceneBreakerRow extends LitElement {
   public static override styles = css`
     :host {
       display: block;
+      --status-color: var(--savant-success);
       --savant-text-halo:
         0 0 2px var(--savant-tile-bg),
         0 1px 1px var(--savant-tile-bg),
@@ -125,25 +126,31 @@ export class SavantSceneBreakerRow extends LitElement {
       align-items: stretch;
       width: 100%;
       min-width: 0;
-      padding: 10px 14px;
+      padding: 12px 14px;
       text-align: left;
       border: 1px solid var(--savant-border);
       border-radius: var(--savant-radius);
-      background: transparent;
+      background:
+        linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--savant-tile-bg-strong) 60%, var(--savant-surface-tint)),
+          var(--savant-tile-bg)
+        );
+      box-shadow: var(--savant-shadow-sm);
       color: var(--savant-tile-fg);
       font-family: var(--savant-font-family, Inter, "SF Pro Display", "SF Pro Text", Roboto, "Helvetica Neue", Arial, sans-serif);
       font-weight: 400;
       cursor: pointer;
-      transition: background 200ms ease;
+      transition: box-shadow 200ms ease;
       gap: 12px;
     }
 
-    .row.on {
-      background: color-mix(in srgb, var(--savant-success) 8%, transparent);
+    .row:hover {
+      filter: brightness(1.04);
     }
 
     .row.off {
-      background: transparent;
+      --status-color: var(--savant-disabled);
     }
 
     .row.locked {
@@ -154,14 +161,10 @@ export class SavantSceneBreakerRow extends LitElement {
     .status-bar {
       display: block;
       flex: none;
-      width: 8px;
+      width: 7px;
       align-self: stretch;
       border-radius: 999px;
-      background: var(--savant-success);
-    }
-
-    .row.off .status-bar {
-      background: var(--savant-disabled);
+      background: var(--status-color);
     }
 
     .body {
@@ -194,8 +197,10 @@ export class SavantSceneBreakerRow extends LitElement {
 
     .badge {
       flex: none;
-      width: 28px;
-      height: 18px;
+      width: fit-content;
+      min-width: 32px;
+      height: 20px;
+      padding: 0 8px;
       border-radius: 999px;
       display: flex;
       align-items: center;

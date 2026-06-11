@@ -6,7 +6,7 @@ describe("card picker registration", () => {
     expect(window.customCards).toContainEqual(
       expect.objectContaining({
         type: "savant-energy-breaker-board-card",
-        name: "Savant Energy Breaker Board",
+        name: "Savant Energy Card",
         preview: true,
       }),
     );

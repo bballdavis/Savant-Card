@@ -32,7 +32,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
   @state() private toggleErrors = new Map<string, string>();
   @state() private stacked = false;
   @state() private sortMenuOpen = false;
-  @state() private sceneOpen = false;
+  @state() private activePage: "breakers" | "scenes" = "breakers";
   @state() private searchOpen = false;
   @state() private searchQuery = "";
   @state() private runtimeSortBy: SortBy | undefined;
@@ -97,13 +97,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
     this.observeLayoutTarget();
   }
 
-  public override connectedCallback(): void {
-    super.connectedCallback();
-    document.addEventListener("keydown", this.handleKeyDown);
-  }
-
   public override disconnectedCallback(): void {
-    document.removeEventListener("keydown", this.handleKeyDown);
     super.disconnectedCallback();
     this.resizeObserver?.disconnect();
     for (const timer of this.optimisticResetTimers.values()) {
@@ -139,14 +133,15 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
         ${this.config.display.show_title
           ? this.renderHeader()
           : nothing}
-        ${this.error
-          ? html`<savant-board-error-state .message=${this.error}></savant-board-error-state>`
-          : this.loading
-            ? this.renderSkeletons()
-            : this.visibleBreakers().length
-              ? this.renderBreakers()
-              : html`<savant-board-empty-state></savant-board-empty-state>`}
-        ${this.renderSceneDialog()}
+        ${this.activePage === "scenes"
+          ? this.renderScenesPage()
+          : this.error
+            ? html`<savant-board-error-state .message=${this.error}></savant-board-error-state>`
+            : this.loading
+              ? this.renderSkeletons()
+              : this.visibleBreakers().length
+                ? this.renderBreakers()
+                : html`<savant-board-empty-state></savant-board-empty-state>`}
       </ha-card>
     `;
   }
@@ -208,9 +203,9 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
             ${this.scenesConfig.enabled !== false
               ? html`<div class="tool-wrap">
                   <button
-                    class="chip-tool"
+                    class="chip-tool${this.activePage === "scenes" ? " active" : ""}"
                     type="button"
-                    @click=${this.openSceneDialog}
+                    @click=${this.toggleScenePage}
                     aria-label="Scenes"
                   >
                     <savant-icon icon="layout_dashboard" aria-hidden="true"></savant-icon>
@@ -453,35 +448,27 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
     this.optimisticSwitchStates = next;
   }
 
-  private openSceneDialog(event: Event): void {
+  private toggleScenePage(event: Event): void {
     event.stopPropagation();
-    this.sceneOpen = true;
+    this.activePage = this.activePage === "scenes" ? "breakers" : "scenes";
   }
 
-  private closeSceneDialog(): void {
-    this.sceneOpen = false;
-  }
-
-  private renderSceneDialog() {
-    if (!this.sceneOpen) return nothing;
+  private renderScenesPage() {
     return html`
       <savant-scene-dialog
         .hass=${this.hass}
         .breakers=${this.breakers}
         .stats=${this.stats}
         .batteryCapacityKwh=${this.scenesConfig.battery_capacity_kwh}
-        .open=${this.sceneOpen}
-        .stacked=${this.stacked}
-        @savant-scene-close=${this.closeSceneDialog}
+        .open=${this.activePage === "scenes"}
+        @savant-scene-close=${this.closeScenesPage}
       ></savant-scene-dialog>
     `;
   }
 
-  private handleKeyDown = (event: KeyboardEvent): void => {
-    if (event.key === "Escape" && this.sceneOpen) {
-      this.sceneOpen = false;
-    }
-  };
+  private closeScenesPage(): void {
+    this.activePage = "breakers";
+  }
 
   public static override styles = [
     sharedStyles,

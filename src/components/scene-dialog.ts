@@ -22,7 +22,6 @@ export class SavantSceneDialog extends LitElement {
   @property({ attribute: false }) stats: Map<string, BreakerStatistics> = new Map();
   @property({ type: Number }) batteryCapacityKwh?: number;
   @property({ type: Boolean, reflect: true }) open = false;
-  @property({ type: Boolean, reflect: true }) stacked = false;
 
   @state() private view: "list" | "editor" = "list";
   @state() private scenes: Scene[] = [];
@@ -213,104 +212,102 @@ export class SavantSceneDialog extends LitElement {
   }
 
   protected override render() {
+    if (!this.open) return nothing;
     return html`
-      <div class="dialog-overlay">
-        <div class="dialog-backdrop" @click=${this.close}></div>
-        <div class="dialog-panel">
-          ${this.renderList()}
-          ${this.renderEditor()}
-        </div>
+      <div class="scenes-page">
+        ${this.view === "list" ? this.renderList() : this.renderEditor()}
       </div>
     `;
   }
 
   private renderList() {
-    if (this.view !== "list") return nothing;
     return html`
-      <div class="dialog-header">
-        <span class="dialog-title">Scenes</span>
-        <button class="dialog-close" @click=${this.close} aria-label="Close">✕</button>
+      <div class="page-header">
+        <span class="page-title">Scenes</span>
+        <button class="chip-tool page-close" @click=${this.close} aria-label="Back to breakers">✕</button>
+      </div>
+      <div class="create-row">
+        <input
+          class="scene-input"
+          type="text"
+          placeholder="New scene name..."
+          .value=${this.newSceneName}
+          @input=${this.onNewSceneNameInput}
+          @keydown=${(e: KeyboardEvent) => e.key === "Enter" && this.createScene()}
+        />
+        <button
+          class="scene-action-btn create-btn"
+          ?disabled=${!this.newSceneName.trim()}
+          @click=${this.createScene}
+        >+ Create</button>
       </div>
       ${this.loading
-        ? html`<div class="dialog-loading">Loading scenes...</div>`
-        : html`
-            ${this.scenes.length === 0
-              ? html`<div class="dialog-empty"><p>No scenes yet. Create one below.</p></div>`
-              : html`
-                  <div class="scene-list">
-                    ${this.scenes.map(
-                      (s) => html`
-                        <div class="scene-list-row" @click=${() => this.openEditor(s.id)}>
-                          <span class="scene-name">${s.name}</span>
-                          <button
-                            class="scene-delete-btn"
-                            @click=${(e: Event) => {
-                              e.stopPropagation();
-                              this.deleteScene(s.id);
-                            }}
-                            aria-label="Delete ${s.name}"
-                          >
-                            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                              <path
-                                d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                      `,
-                    )}
-                  </div>
-                `}
-            <div class="dialog-footer">
-              <input
-                class="scene-input"
-                type="text"
-                placeholder="Create new scene..."
-                .value=${this.newSceneName}
-                @input=${this.onNewSceneNameInput}
-                @keydown=${(e: KeyboardEvent) => e.key === "Enter" && this.createScene()}
-              />
-              <button
-                class="scene-create-btn"
-                ?disabled=${!this.newSceneName.trim()}
-                @click=${this.createScene}
-              >
-                + Add
-              </button>
-            </div>
-          `}
-      ${this.errorMessage ? html`<div class="dialog-error">${this.errorMessage}</div>` : ""}
+        ? html`<div class="page-loading">Loading scenes...</div>`
+        : this.scenes.length === 0
+          ? html`<div class="page-empty"><p>No scenes yet. Create one above.</p></div>`
+          : html`
+              <div class="scene-list">
+                ${this.scenes.map(
+                  (s) => html`
+                    <button class="scene-tile" @click=${() => this.openEditor(s.id)}>
+                      <span class="scene-tile-bar" aria-hidden="true"></span>
+                      <span class="scene-tile-body">
+                        <span class="scene-tile-name">${s.name}</span>
+                      </span>
+                      <button
+                        class="scene-delete-btn tile-delete"
+                        @click=${(e: Event) => {
+                          e.stopPropagation();
+                          this.deleteScene(s.id);
+                        }}
+                        aria-label="Delete ${s.name}"
+                      >
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                          <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
+                        </svg>
+                      </button>
+                    </button>
+                  `,
+                )}
+              </div>
+            `}
+      ${this.errorMessage ? html`<div class="page-error">${this.errorMessage}</div>` : ""}
     `;
   }
 
   private renderEditor() {
-    if (this.view !== "editor") return nothing;
     return html`
-      <div class="dialog-header">
-        <button class="dialog-back" @click=${this.goBack} aria-label="Back">← Back</button>
-        <span class="dialog-title">Edit Scene</span>
-        <button class="dialog-close" @click=${this.close} aria-label="Close">✕</button>
+      <div class="page-header">
+        <button class="chip-tool page-back" @click=${this.goBack} aria-label="Back to scenes">←</button>
+        <span class="page-title">Edit Scene</span>
+        <button
+          class="scene-delete-btn header-delete"
+          @click=${() => this.deleteScene(this.selectedSceneId)}
+          aria-label="Delete scene"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
+          </svg>
+        </button>
       </div>
       <div class="editor-name-row">
         <input
-          class="scene-input editor-name-input"
+          class="scene-input"
           type="text"
           .value=${this.selectedSceneName}
           @input=${this.onEditorNameInput}
         />
         <button
-          class="scene-save-btn"
+          class="scene-action-btn save-btn"
           ?disabled=${this.saving || !this.selectedSceneName.trim()}
           @click=${this.saveScene}
-        >
-          ${this.saving ? "Saving..." : "Save"}
-        </button>
+        >${this.saving ? "Saving..." : "Save"}</button>
       </div>
       <div class="breaker-list">
         ${this.loading
-          ? html`<div class="dialog-loading">Loading breakers...</div>`
+          ? html`<div class="page-loading">Loading breakers...</div>`
           : this.breakerRows.length === 0
-            ? html`<div class="dialog-empty"><p>No breakers found.</p></div>`
+            ? html`<div class="page-empty"><p>No breakers found.</p></div>`
             : this.breakerRows.map(
                 (row) => html`
                   <savant-scene-breaker-row
@@ -326,8 +323,8 @@ export class SavantSceneDialog extends LitElement {
                 `,
               )}
       </div>
-      ${this.errorMessage ? html`<div class="dialog-error">${this.errorMessage}</div>` : ""}
-      <div class="dialog-footer-summary">
+      ${this.errorMessage ? html`<div class="page-error">${this.errorMessage}</div>` : ""}
+      <div class="footer-summary-wrap">
         ${this.renderFooter()}
       </div>
     `;
@@ -340,57 +337,29 @@ export class SavantSceneDialog extends LitElement {
         display: block;
       }
 
-      .dialog-overlay {
-        position: absolute;
-        inset: 0;
-        z-index: 10;
-        display: flex;
-      }
-
-      .dialog-backdrop {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-      }
-
-      .dialog-panel {
-        position: relative;
-        max-width: 520px;
-        margin: auto;
-        max-height: 90%;
-        background: var(--ha-card-background);
-        border-radius: var(--savant-radius);
-        overflow: hidden;
+      /* ── Page layout ── */
+      .scenes-page {
         display: flex;
         flex-direction: column;
-        width: 100%;
+        gap: 12px;
+        padding: 0;
       }
 
-      :host([stacked]) .dialog-panel {
-        position: absolute;
-        inset: 0;
-        border-radius: 0;
-        max-width: none;
-        max-height: none;
-        margin: 0;
-      }
-
-      .dialog-header {
+      /* ── Page header ── */
+      .page-header {
         display: flex;
         align-items: center;
-        padding: 14px 16px;
-        border-bottom: 1px solid var(--savant-border);
+        padding: 0;
         gap: 8px;
       }
 
-      .dialog-title {
+      .page-title {
         font-size: 16px;
         font-weight: 600;
         flex: 1;
       }
 
-      .dialog-close,
-      .dialog-back {
+      .chip-tool {
         flex: none;
         height: 28px;
         width: 28px;
@@ -416,10 +385,8 @@ export class SavantSceneDialog extends LitElement {
         background-color: var(--savant-tile-bg);
       }
 
-      .dialog-close:hover,
-      .dialog-back:hover,
-      .dialog-close:focus-visible,
-      .dialog-back:focus-visible {
+      .chip-tool:hover,
+      .chip-tool:focus-visible {
         border-color: color-mix(in srgb, var(--primary-text-color) 82%, white);
         box-shadow:
           inset 0 1px 0 rgb(255 255 255 / 0.2),
@@ -428,54 +395,14 @@ export class SavantSceneDialog extends LitElement {
           0 3px 6px rgb(0 0 0 / 0.3);
       }
 
-      .scene-list {
-        overflow-y: auto;
-        flex: 1;
-      }
-
-      .scene-list-row {
-        display: flex;
-        padding: 12px 16px;
-        cursor: pointer;
-        border-bottom: 1px solid var(--savant-border);
-        align-items: center;
-        gap: 8px;
-      }
-
-      .scene-list-row:hover {
-        background: color-mix(in srgb, var(--primary-text-color) 6%, transparent);
-      }
-
-      .scene-name {
-        flex: 1;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .scene-delete-btn {
-        color: var(--savant-error);
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 4px;
-        display: grid;
-        place-items: center;
-        flex: none;
-      }
-
-      .scene-delete-btn:hover {
-        opacity: 0.8;
-      }
-
-      .editor-name-row {
+      /* ── Create row (at top) ── */
+      .create-row {
         display: flex;
         gap: 8px;
-        padding: 12px 16px;
-        border-bottom: 1px solid var(--savant-border);
         align-items: center;
       }
 
+      /* ── Scene input ── */
       .scene-input {
         flex: 1;
         background: var(--savant-tile-bg);
@@ -492,51 +419,140 @@ export class SavantSceneDialog extends LitElement {
         border-color: var(--primary-color);
       }
 
-      .scene-create-btn,
-      .scene-save-btn {
-        background: var(--savant-success);
-        color: white;
+      /* ── Scene action buttons (Create / Save) ── */
+      .scene-action-btn {
+        padding: 8px 16px;
         border: none;
         border-radius: 8px;
-        padding: 8px 16px;
-        cursor: pointer;
-        font-weight: 600;
         font-size: 13px;
+        font-weight: 600;
         font-family: inherit;
+        cursor: pointer;
         flex: none;
         transition: opacity 200ms ease;
       }
 
-      .scene-create-btn[disabled],
-      .scene-save-btn[disabled] {
+      .create-btn,
+      .save-btn {
+        background: var(--savant-success);
+        color: white;
+      }
+
+      .create-btn[disabled],
+      .save-btn[disabled] {
         opacity: 0.5;
         cursor: not-allowed;
       }
 
-      .scene-create-btn:not([disabled]):hover,
-      .scene-save-btn:not([disabled]):hover {
+      .create-btn:not([disabled]):hover,
+      .save-btn:not([disabled]):hover {
         opacity: 0.9;
       }
 
-      .breaker-list {
-        overflow-y: auto;
-        flex: 1;
-        padding: 8px 12px;
+      /* ── Scene list tiles ── */
+      .scene-list {
         display: flex;
         flex-direction: column;
         gap: 6px;
       }
 
-      .dialog-footer {
-        padding: 12px 16px;
+      .scene-tile {
         display: flex;
-        gap: 8px;
-        border-top: 1px solid var(--savant-border);
+        align-items: center;
+        width: 100%;
+        padding: 12px 14px;
+        text-align: left;
+        border: 1px solid var(--savant-border);
+        border-radius: var(--savant-radius);
+        background: linear-gradient(180deg, color-mix(in srgb, var(--savant-tile-bg-strong) 60%, var(--savant-surface-tint)), var(--savant-tile-bg));
+        box-shadow: var(--savant-shadow-sm);
+        color: var(--savant-tile-fg);
+        cursor: pointer;
+        gap: 10px;
+        transition: box-shadow 200ms ease;
+        font-family: inherit;
+        font-size: inherit;
       }
 
-      .dialog-footer-summary {
-        padding: 12px 16px;
+      .scene-tile:hover {
+        filter: brightness(1.04);
+      }
+
+      .scene-tile-bar {
+        display: block;
+        flex: none;
+        width: 7px;
+        align-self: stretch;
+        border-radius: 999px;
+        background: var(--savant-muted);
+      }
+
+      .scene-tile-body {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .scene-tile-name {
+        font-size: 15px;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-shadow: var(--savant-text-halo);
+        -webkit-text-stroke: 4px var(--savant-text-outline-color);
+        paint-order: stroke fill;
+      }
+
+      /* ── Delete button ── */
+      .scene-delete-btn {
+        color: var(--savant-error);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        display: grid;
+        place-items: center;
+        flex: none;
+        border-radius: 4px;
+      }
+
+      .scene-delete-btn:hover {
+        opacity: 0.8;
+      }
+
+      .tile-delete {
+        /* specific context within tiles — inherits from .scene-delete-btn */
+      }
+
+      .header-delete {
+        padding: 6px;
+        border-radius: 6px;
+        border: 1px solid color-mix(in srgb, var(--savant-error) 50%, transparent);
+        background: color-mix(in srgb, var(--savant-error) 8%, transparent);
+      }
+
+      .header-delete:hover {
+        background: color-mix(in srgb, var(--savant-error) 16%, transparent);
+      }
+
+      /* ── Editor name row ── */
+      .editor-name-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      /* ── Breaker list ── */
+      .breaker-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      /* ── Footer summary ── */
+      .footer-summary-wrap {
         border-top: 1px solid var(--savant-border);
+        padding-top: 12px;
       }
 
       .footer-summary {
@@ -552,15 +568,16 @@ export class SavantSceneDialog extends LitElement {
         color: var(--savant-caution);
       }
 
-      .dialog-loading,
-      .dialog-empty {
+      /* ── Info / error states ── */
+      .page-loading,
+      .page-empty {
         padding: 32px 16px;
         text-align: center;
         color: var(--savant-muted);
       }
 
-      .dialog-error {
-        padding: 8px 16px;
+      .page-error {
+        padding: 8px 0;
         color: var(--savant-error);
         font-size: 12px;
       }
