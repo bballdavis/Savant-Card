@@ -222,7 +222,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
                 <input
                   class="search-input"
                   type="search"
-                  placeholder="Search loads"
+                  placeholder=${this.activePage === "scenes" ? "Search scenes" : "Search loads"}
                   .value=${this.searchQuery}
                   @input=${(event: Event) => (this.searchQuery = (event.target as HTMLInputElement).value)}
                 />

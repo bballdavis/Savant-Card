@@ -55,6 +55,8 @@ const LABELS: Record<string, string> = {
   area_name: "Area name",
   panel_name: "Panel name",
   circuit_number: "Circuit number",
+  scenes: "Scenes",
+  battery_capacity_kwh: "Battery capacity (kWh)",
 };
 
 const HELPERS: Record<string, string> = {
@@ -66,6 +68,7 @@ const HELPERS: Record<string, string> = {
   high_load_threshold_watts: "Chart turns orange above this wattage.",
   manual_breakers: "Optional fallback mappings for breakers that cannot be discovered from entity metadata.",
   id: "Use a stable ID, for example panel_1_circuit_12.",
+  battery_capacity_kwh: "Set to show battery drain estimates in scene editor.",
 };
 
 export function getSavantBreakerBoardConfigForm(): LovelaceCardConfigForm {
@@ -139,6 +142,18 @@ export function getSavantBreakerBoardConfigForm(): LovelaceCardConfigForm {
           {
             name: "high_load_threshold_watts",
             selector: { number: { min: 0, step: 100, mode: "box", unit_of_measurement: "W" } },
+          },
+        ],
+      },
+      {
+        type: "expandable",
+        name: "scenes",
+        title: "Scenes",
+        schema: [
+          { name: "enabled", selector: { boolean: {} } },
+          {
+            name: "battery_capacity_kwh",
+            selector: { number: { min: 0, step: 0.1, mode: "box", unit_of_measurement: "kWh" } },
           },
         ],
       },
@@ -223,6 +238,11 @@ function assertVisualEditorConfig(config: PartialSavantBreakerBoardConfig): void
     throw new Error("manual_breakers must be a list.");
   }
   assertObject("breaker_overrides", config.breaker_overrides);
+  if (config.scenes !== undefined) {
+    if (typeof config.scenes !== "object" || config.scenes === null || Array.isArray(config.scenes)) {
+      throw new Error("scenes must be an object.");
+    }
+  }
 }
 
 function assertObject(key: keyof PartialSavantBreakerBoardConfig, value: unknown): void {

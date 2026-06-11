@@ -8,7 +8,6 @@ import type { Scene, SceneFooterSummary } from "../types/scene";
 import { SceneService } from "../data/scene-service";
 import {
   computeSceneFooter,
-  formatWatts,
   formatKwh,
   formatBatteryPercent,
 } from "../data/scene-energy-calculator";
@@ -202,23 +201,6 @@ export class SavantSceneDialog extends LitElement {
     return computeSceneFooter(this.relayStates, statsMap, this.batteryCapacityKwh);
   }
 
-  private renderFooter() {
-    const f = this.footer;
-    if (f.totalOnBreakers === 0) {
-      return html`<div class="footer-summary">No breakers ON — scene will turn everything off.</div>`;
-    }
-    return html`
-      <div class="footer-summary">
-        <div class="footer-row">ON: ${f.totalOnBreakers} / ${f.totalBreakers} breakers</div>
-        <div class="footer-row">Scene load: ${formatWatts(f.totalAverageWatts)} avg</div>
-        <div class="footer-row">→ ${formatKwh(f.totalKwhPerHour)}/h · ${formatKwh(f.totalWeeklyKwh)}/wk</div>
-        ${f.batteryDrainPercentPerHour !== undefined
-          ? html`<div class="footer-row battery">→ ${formatBatteryPercent(f.batteryDrainPercentPerHour)} battery drain</div>`
-          : ""}
-      </div>
-    `;
-  }
-
   protected override render() {
     if (!this.open) return nothing;
     return html`
@@ -249,18 +231,7 @@ export class SavantSceneDialog extends LitElement {
           @click=${this.createScene}
         >+ Create</button>
       </div>
-      <div class="search-row">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-          <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/>
-        </svg>
-        <input
-          class="search-input"
-          type="text"
-          placeholder="Search scenes..."
-          .value=${this.searchQuery}
-          @input=${(e: InputEvent) => (this.searchQuery = (e.target as HTMLInputElement).value)}
-        />
-      </div>
+
       ${this.loading
         ? html`<div class="page-loading">Loading scenes...</div>`
         : this.filteredScenes.length === 0
@@ -269,7 +240,7 @@ export class SavantSceneDialog extends LitElement {
               <div class="scene-list">
                 ${this.filteredScenes.map(
                   (s) => html`
-                    <button class="scene-tile" @click=${() => this.openEditor(s.id)}>
+                    <div class="scene-tile" role="button" tabindex="0" @click=${() => this.openEditor(s.id)} @keydown=${(e: KeyboardEvent) => e.key === "Enter" && this.openEditor(s.id)}>
                       <span class="scene-tile-bar" aria-hidden="true"></span>
                       <span class="scene-tile-body">
                         <span class="scene-tile-name">${s.name}</span>
@@ -286,7 +257,7 @@ export class SavantSceneDialog extends LitElement {
                           <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
                         </svg>
                       </button>
-                    </button>
+                    </div>
                   `,
                 )}
               </div>
@@ -297,18 +268,20 @@ export class SavantSceneDialog extends LitElement {
 
   private renderBudgetChip() {
     const f = this.footer;
-    if (f.totalOnBreakers === 0) return nothing;
+    if (f.totalOnBreakers === 0) {
+      return html`<span class="budget-chip">All off</span>`;
+    }
     const parts: string[] = [];
+    parts.push(`${f.totalOnBreakers}/${f.totalBreakers}`);
     if (f.totalKwhPerHour > 0) {
       parts.push(`${formatKwh(f.totalKwhPerHour)}/h`);
+    } else {
+      parts.push(`0 Wh`);
     }
     if (f.batteryDrainPercentPerHour !== undefined) {
       parts.push(formatBatteryPercent(f.batteryDrainPercentPerHour));
     }
-    if (!parts.length) return nothing;
-    return html`
-      <span class="budget-chip">${parts.join(" · ")}</span>
-    `;
+    return html`<span class="budget-chip">${parts.join(" · ")}</span>`;
   }
 
   private renderEditor() {
@@ -338,12 +311,14 @@ export class SavantSceneDialog extends LitElement {
             </button>
           `
           : html`
-            <span class="editor-name-text">${this.selectedSceneName}</span>
-            <button class="icon-btn edit-btn" @click=${() => (this.editingName = true)} aria-label="Edit scene name">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/>
-              </svg>
-            </button>
+            <div class="name-group">
+              <span class="editor-name-text">${this.selectedSceneName}</span>
+              <button class="icon-btn edit-btn" @click=${() => (this.editingName = true)} aria-label="Edit scene name">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                  <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/>
+                </svg>
+              </button>
+            </div>
           `}
         
         ${this.renderBudgetChip()}
@@ -375,9 +350,6 @@ export class SavantSceneDialog extends LitElement {
               )}
       </div>
       ${this.errorMessage ? html`<div class="page-error">${this.errorMessage}</div>` : ""}
-      <div class="footer-summary-wrap">
-        ${this.renderFooter()}
-      </div>
       </div>
     `;
   }
@@ -454,40 +426,6 @@ export class SavantSceneDialog extends LitElement {
         align-items: center;
       }
 
-      /* ── Search row ── */
-      .search-row {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        background: var(--savant-tile-bg);
-        border: 1px solid var(--savant-border);
-        border-radius: 8px;
-        padding: 0 10px;
-      }
-      .search-row:focus-within {
-        border-color: var(--primary-color);
-      }
-      .search-icon {
-        flex: none;
-        color: var(--savant-muted);
-        opacity: 0.6;
-      }
-      .search-input {
-        flex: 1;
-        background: transparent;
-        border: none;
-        padding: 8px 0;
-        color: var(--primary-text-color);
-        font-size: 13px;
-        outline: none;
-        font-family: inherit;
-      }
-      .search-input::placeholder {
-        color: var(--savant-muted);
-        opacity: 0.6;
-      }
-
-      /* ── Scene input ── */
       .scene-input {
         flex: 1;
         background: var(--savant-tile-bg);
@@ -642,26 +580,42 @@ export class SavantSceneDialog extends LitElement {
         z-index: 2;
         background: var(--savant-card-bg);
       }
+      .name-group {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex: none;
+        max-width: 40%;
+        min-width: 0;
+      }
       .editor-name-text {
         font-size: 15px;
         font-weight: 500;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        flex: 1;
         min-width: 0;
       }
 
       .budget-chip {
-        font-size: 11px;
+        flex: 1;
+        min-width: 0;
+        font-size: 12px;
         font-weight: 600;
-        padding: 3px 8px;
-        background: var(--savant-tile-bg);
-        border: 1px solid var(--savant-border);
-        border-radius: 999px;
+        padding: 4px 10px;
+        border: 1px solid color-mix(in srgb, var(--primary-text-color) 70%, var(--divider-color));
+        border-radius: var(--savant-radius);
         color: var(--savant-muted);
+        background: linear-gradient(
+          145deg,
+          color-mix(in srgb, var(--savant-tile-bg) 84%, white),
+          var(--savant-tile-bg)
+        );
+        box-shadow: var(--savant-shadow-sm);
         white-space: nowrap;
-        flex: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: center;
       }
 
       .icon-btn {
@@ -683,15 +637,23 @@ export class SavantSceneDialog extends LitElement {
         border-color: var(--savant-border);
       }
       .save-icon-btn {
-        color: var(--savant-success);
+        background: var(--savant-success);
+        color: white;
+        border: 1px solid var(--savant-success);
+        border-radius: var(--savant-radius);
+        width: 32px;
+        height: 32px;
       }
       .save-icon-btn:hover {
-        color: var(--savant-success);
+        background: color-mix(in srgb, var(--savant-success) 80%, black);
+        color: white;
         border-color: var(--savant-success);
       }
       .save-icon-btn[disabled] {
         opacity: 0.5;
         cursor: not-allowed;
+        background: var(--savant-disabled);
+        border-color: var(--savant-disabled);
       }
       .edit-btn {
         color: var(--savant-muted);
@@ -704,25 +666,6 @@ export class SavantSceneDialog extends LitElement {
         gap: 6px;
         flex: 1;
         padding: 8px 12px;
-      }
-
-      /* ── Footer summary ── */
-      .footer-summary-wrap {
-        border-top: 1px solid var(--savant-border);
-        padding-top: 12px;
-      }
-
-      .footer-summary {
-        font-size: 12px;
-        color: var(--savant-muted);
-      }
-
-      .footer-row {
-        margin: 2px 0;
-      }
-
-      .footer-row.battery {
-        color: var(--savant-caution);
       }
 
       /* ── Info / error states ── */
