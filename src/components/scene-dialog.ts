@@ -313,6 +313,7 @@ export class SavantSceneDialog extends LitElement {
 
   private renderEditor() {
     return html`
+      <div class="editor-scroll">
       <div class="page-header">
         <button class="chip-tool page-back" @click=${this.goBack} aria-label="Back to scenes">←</button>
         <span class="page-title">Edit Scene</span>
@@ -376,6 +377,7 @@ export class SavantSceneDialog extends LitElement {
       ${this.errorMessage ? html`<div class="page-error">${this.errorMessage}</div>` : ""}
       <div class="footer-summary-wrap">
         ${this.renderFooter()}
+      </div>
       </div>
     `;
   }
@@ -618,7 +620,16 @@ export class SavantSceneDialog extends LitElement {
         background: color-mix(in srgb, var(--savant-error) 16%, transparent);
       }
 
-      /* ── Editor name row ── */
+      /* ── Editor scroll container (for sticky header) ── */
+      .editor-scroll {
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        flex: 1;
+        max-height: 100%;
+      }
+
+      /* ── Editor name row (sticky header) ── */
       .editor-name-row {
         display: flex;
         align-items: center;
@@ -626,6 +637,10 @@ export class SavantSceneDialog extends LitElement {
         padding: 8px 12px;
         border-bottom: 1px solid var(--savant-border);
         min-height: 44px;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: var(--savant-card-bg);
       }
       .editor-name-text {
         font-size: 15px;
@@ -687,7 +702,6 @@ export class SavantSceneDialog extends LitElement {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 6px;
-        overflow-y: auto;
         flex: 1;
         padding: 8px 12px;
       }
