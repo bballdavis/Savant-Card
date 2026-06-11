@@ -31,7 +31,9 @@ export class SavantSceneDialog extends LitElement {
   @state() private newSceneName = "";
   @state() private loading = false;
   @state() private saving = false;
+  @state() private editingName = false;
   @state() private errorMessage = "";
+  @property({ type: String }) searchQuery = "";
 
   protected override updated(changed: Map<string, unknown>): void {
     if (changed.has("open") && this.open) {
@@ -159,6 +161,12 @@ export class SavantSceneDialog extends LitElement {
     this.selectedSceneName = (event.target as HTMLInputElement).value;
   }
 
+  get filteredScenes(): Scene[] {
+    const q = this.searchQuery.trim().toLowerCase();
+    if (!q) return this.scenes;
+    return this.scenes.filter((s) => s.name.toLowerCase().includes(q));
+  }
+
   get breakerRows() {
     const entityIds = Object.keys(this.relayStates);
     return entityIds
@@ -241,13 +249,25 @@ export class SavantSceneDialog extends LitElement {
           @click=${this.createScene}
         >+ Create</button>
       </div>
+      <div class="search-row">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+          <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/>
+        </svg>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Search scenes..."
+          .value=${this.searchQuery}
+          @input=${(e: InputEvent) => (this.searchQuery = (e.target as HTMLInputElement).value)}
+        />
+      </div>
       ${this.loading
         ? html`<div class="page-loading">Loading scenes...</div>`
-        : this.scenes.length === 0
+        : this.filteredScenes.length === 0
           ? html`<div class="page-empty"><p>No scenes yet. Create one above.</p></div>`
           : html`
               <div class="scene-list">
-                ${this.scenes.map(
+                ${this.filteredScenes.map(
                   (s) => html`
                     <button class="scene-tile" @click=${() => this.openEditor(s.id)}>
                       <span class="scene-tile-bar" aria-hidden="true"></span>
@@ -275,6 +295,22 @@ export class SavantSceneDialog extends LitElement {
     `;
   }
 
+  private renderBudgetChip() {
+    const f = this.footer;
+    if (f.totalOnBreakers === 0) return nothing;
+    const parts: string[] = [];
+    if (f.totalKwhPerHour > 0) {
+      parts.push(`${formatKwh(f.totalKwhPerHour)}/h`);
+    }
+    if (f.batteryDrainPercentPerHour !== undefined) {
+      parts.push(formatBatteryPercent(f.batteryDrainPercentPerHour));
+    }
+    if (!parts.length) return nothing;
+    return html`
+      <span class="budget-chip">${parts.join(" · ")}</span>
+    `;
+  }
+
   private renderEditor() {
     return html`
       <div class="page-header">
@@ -291,17 +327,31 @@ export class SavantSceneDialog extends LitElement {
         </button>
       </div>
       <div class="editor-name-row">
-        <input
-          class="scene-input"
-          type="text"
-          .value=${this.selectedSceneName}
-          @input=${this.onEditorNameInput}
-        />
-        <button
-          class="scene-action-btn save-btn"
-          ?disabled=${this.saving || !this.selectedSceneName.trim()}
-          @click=${this.saveScene}
-        >${this.saving ? "Saving..." : "Save"}</button>
+        ${this.editingName
+          ? html`
+            <input class="scene-input" type="text" .value=${this.selectedSceneName} @input=${this.onEditorNameInput} @keydown=${(e: KeyboardEvent) => e.key === "Enter" && (this.editingName = false)} />
+            <button class="icon-btn" @click=${() => (this.editingName = false)} aria-label="Done editing">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+              </svg>
+            </button>
+          `
+          : html`
+            <span class="editor-name-text">${this.selectedSceneName}</span>
+            <button class="icon-btn edit-btn" @click=${() => (this.editingName = true)} aria-label="Edit scene name">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/>
+              </svg>
+            </button>
+          `}
+        
+        ${this.renderBudgetChip()}
+        
+        <button class="icon-btn save-icon-btn" ?disabled=${this.saving} @click=${this.saveScene} aria-label="Save scene" title="Save">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+          </svg>
+        </button>
       </div>
       <div class="breaker-list">
         ${this.loading
@@ -400,6 +450,39 @@ export class SavantSceneDialog extends LitElement {
         display: flex;
         gap: 8px;
         align-items: center;
+      }
+
+      /* ── Search row ── */
+      .search-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--savant-tile-bg);
+        border: 1px solid var(--savant-border);
+        border-radius: 8px;
+        padding: 0 10px;
+      }
+      .search-row:focus-within {
+        border-color: var(--primary-color);
+      }
+      .search-icon {
+        flex: none;
+        color: var(--savant-muted);
+        opacity: 0.6;
+      }
+      .search-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 8px 0;
+        color: var(--primary-text-color);
+        font-size: 13px;
+        outline: none;
+        font-family: inherit;
+      }
+      .search-input::placeholder {
+        color: var(--savant-muted);
+        opacity: 0.6;
       }
 
       /* ── Scene input ── */
@@ -538,15 +621,75 @@ export class SavantSceneDialog extends LitElement {
       /* ── Editor name row ── */
       .editor-name-row {
         display: flex;
-        gap: 8px;
         align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--savant-border);
+        min-height: 44px;
+      }
+      .editor-name-text {
+        font-size: 15px;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .budget-chip {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        background: var(--savant-tile-bg);
+        border: 1px solid var(--savant-border);
+        border-radius: 999px;
+        color: var(--savant-muted);
+        white-space: nowrap;
+        flex: none;
+      }
+
+      .icon-btn {
+        flex: none;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        display: grid;
+        place-items: center;
+        border: 1px solid transparent;
+        border-radius: var(--savant-radius);
+        background: transparent;
+        color: var(--savant-muted);
+        cursor: pointer;
+        transition: color 200ms ease, border-color 200ms ease;
+      }
+      .icon-btn:hover {
+        color: var(--primary-text-color);
+        border-color: var(--savant-border);
+      }
+      .save-icon-btn {
+        color: var(--savant-success);
+      }
+      .save-icon-btn:hover {
+        color: var(--savant-success);
+        border-color: var(--savant-success);
+      }
+      .save-icon-btn[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .edit-btn {
+        color: var(--savant-muted);
       }
 
       /* ── Breaker list ── */
       .breaker-list {
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 6px;
+        overflow-y: auto;
+        flex: 1;
+        padding: 8px 12px;
       }
 
       /* ── Footer summary ── */

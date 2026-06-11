@@ -2,7 +2,6 @@ import { LitElement, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import {
   computeBreakerEnergy,
-  formatWatts,
   formatKwh,
   formatBatteryPercent,
 } from "../data/scene-energy-calculator";
@@ -57,7 +56,6 @@ export class SavantSceneBreakerRow extends LitElement {
   private renderStats(
     energy?: {
       averageKwPerHour?: number;
-      estimatedWeeklyKwh?: number;
       batteryDrainPercentPerHour?: number;
     },
   ) {
@@ -71,27 +69,20 @@ export class SavantSceneBreakerRow extends LitElement {
       return html`<span class="stats"><span class="stats-line muted">No data</span></span>`;
     }
 
-    const kwLine = `${formatWatts(this.averageWatts)} avg`;
+    const parts: string[] = [];
     const kwhPerHour = energy?.averageKwPerHour;
-    const kwhPerWeek = energy?.estimatedWeeklyKwh;
     const batteryPct = energy?.batteryDrainPercentPerHour;
 
-    const line1 =
-      kwhPerHour !== undefined ? `${kwLine} · ${formatKwh(kwhPerHour)}/h` : kwLine;
-
-    const line2Parts: string[] = [];
-    if (kwhPerWeek !== undefined) {
-      line2Parts.push(`${formatKwh(kwhPerWeek)}/wk`);
+    if (kwhPerHour !== undefined) {
+      parts.push(`${formatKwh(kwhPerHour)}/h`);
     }
     if (batteryPct !== undefined) {
-      line2Parts.push(formatBatteryPercent(batteryPct));
+      parts.push(formatBatteryPercent(batteryPct));
     }
-    const line2 = line2Parts.join(" · ");
 
     return html`
       <span class="stats">
-        <span class="stats-line">${line1}</span>
-        ${line2 ? html`<span class="stats-line">${line2}</span>` : ""}
+        <span class="stats-line">${parts.join("  ·  ")}</span>
       </span>
     `;
   }
@@ -126,7 +117,7 @@ export class SavantSceneBreakerRow extends LitElement {
       align-items: stretch;
       width: 100%;
       min-width: 0;
-      padding: 12px 14px;
+      padding: 8px 14px;
       text-align: left;
       border: 1px solid var(--savant-border);
       border-radius: var(--savant-radius);
@@ -173,7 +164,7 @@ export class SavantSceneBreakerRow extends LitElement {
       flex-direction: column;
       justify-content: center;
       min-width: 0;
-      gap: 3px;
+      gap: 2px;
     }
 
     .header {
@@ -231,7 +222,7 @@ export class SavantSceneBreakerRow extends LitElement {
     .stats-line {
       font-size: 12px;
       color: var(--savant-muted);
-      line-height: 1.3;
+      line-height: 1.2;
     }
 
     .stats-line.muted {

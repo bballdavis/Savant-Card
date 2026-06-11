@@ -159,6 +159,16 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
         <div class="board-header-top">
           <div class="savant-wordmark" aria-label="Savant">SAVANT</div>
           <div class="board-tools">
+            ${this.stacked
+              ? html`<button
+                  class=${this.effectiveMobileView() === "ultra_compact" ? "chip-tool active" : "chip-tool"}
+                  type="button"
+                  @click=${() => this.toggleMobileView()}
+                >
+                  <savant-icon icon="minimize_2" aria-hidden="true"></savant-icon>
+                  <span class="sr-only">Toggle ultra-compact mobile view</span>
+                </button>`
+              : nothing}
             <div class="tool-wrap">
               <button
                 class=${this.searchOpen ? "chip-tool active" : "chip-tool"}
@@ -190,16 +200,6 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
                   </div>`
                 : nothing}
             </div>
-            ${this.stacked
-              ? html`<button
-                  class=${this.effectiveMobileView() === "ultra_compact" ? "chip-tool active" : "chip-tool"}
-                  type="button"
-                  @click=${() => this.toggleMobileView()}
-                >
-                  <savant-icon icon="minimize_2" aria-hidden="true"></savant-icon>
-                  <span class="sr-only">Toggle ultra-compact mobile view</span>
-                </button>`
-              : nothing}
             ${this.scenesConfig.enabled !== false
               ? html`<div class="tool-wrap">
                   <button
@@ -460,6 +460,7 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
         .breakers=${this.breakers}
         .stats=${this.stats}
         .batteryCapacityKwh=${this.scenesConfig.battery_capacity_kwh}
+        .searchQuery=${this.searchQuery}
         .open=${this.activePage === "scenes"}
         @savant-scene-close=${this.closeScenesPage}
       ></savant-scene-dialog>
