@@ -40,6 +40,7 @@ export interface HomeAssistant {
     sendMessagePromise<T = any>(message: Record<string, any>): Promise<T>;
   };
   callService(domain: string, service: string, data?: Record<string, any>): Promise<void>;
+  callApi<T = any>(method: string, path: string, data?: any): Promise<T>;
   localize?: (key: string, ...args: any[]) => string;
 }
 

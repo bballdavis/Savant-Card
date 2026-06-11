@@ -46,5 +46,6 @@ export function createHass(): HomeAssistant {
       },
     },
     async callService() {},
+    async callApi<T = any>(_method: string, _path: string, _data?: any): Promise<T> { return undefined as T; },
   };
 }

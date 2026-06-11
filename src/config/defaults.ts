@@ -42,4 +42,5 @@ export const DEFAULT_CONFIG: SavantBreakerBoardConfig = {
   excluded_breakers: [],
   breaker_overrides: {},
   manual_breakers: [],
+  scenes: { enabled: true, battery_capacity_kwh: undefined },
 };

@@ -122,6 +122,10 @@ export function createMockHass(): HomeAssistant {
     async callService(domain, service, data) {
       console.info("mock service", domain, service, data);
     },
+    async callApi<T = any>(method: string, path: string, data?: any): Promise<T> {
+      console.info("mock callApi", method, path, data);
+      return undefined as T;
+    },
   };
 }
 
