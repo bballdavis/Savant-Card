@@ -4587,7 +4587,7 @@ C = R([
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "savant-energy-breaker-board-card",
-  name: "Savant Energy Breaker Board",
+  name: "Savant Energy Card",
   description: "Discover and control Savant Energy breaker/circuit power data.",
   preview: !0,
   documentationURL: "https://github.com/brett/savant-energy-breaker-board-card"
