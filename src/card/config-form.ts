@@ -75,6 +75,7 @@ export function getSavantBreakerBoardConfigForm(): LovelaceCardConfigForm {
   return {
     schema: [
       { name: "title", selector: { text: {} } },
+      { name: "battery_capacity_kwh", selector: { number: { min: 0, step: 0.1, mode: "box", unit_of_measurement: "kWh" } } },
       {
         type: "expandable",
         name: "discovery",
@@ -142,18 +143,6 @@ export function getSavantBreakerBoardConfigForm(): LovelaceCardConfigForm {
           {
             name: "high_load_threshold_watts",
             selector: { number: { min: 0, step: 100, mode: "box", unit_of_measurement: "W" } },
-          },
-        ],
-      },
-      {
-        type: "expandable",
-        name: "scenes",
-        title: "Scenes",
-        schema: [
-          { name: "enabled", selector: { boolean: {} } },
-          {
-            name: "battery_capacity_kwh",
-            selector: { number: { min: 0, step: 0.1, mode: "box", unit_of_measurement: "kWh" } },
           },
         ],
       },

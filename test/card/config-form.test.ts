@@ -7,12 +7,12 @@ describe("SavantEnergyBreakerBoardCard.getConfigForm", () => {
 
     expect(form.schema.map((entry) => entry.name)).toEqual([
       "title",
+      "battery_capacity_kwh",
       "discovery",
       "layout",
       "display",
       "graph",
       "controls",
-      "scenes",
       "manual",
     ]);
     expect(form.computeLabel({ name: "high_load_threshold_watts" })).toBe("Orange chart threshold");

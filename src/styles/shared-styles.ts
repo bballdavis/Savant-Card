@@ -25,7 +25,7 @@ export const sharedStyles = css`
   }
 
   ha-card {
-    overflow: hidden;
+    overflow: visible;
     padding: 16px;
     background: var(--savant-card-bg);
   }

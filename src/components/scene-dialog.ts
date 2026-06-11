@@ -269,19 +269,24 @@ export class SavantSceneDialog extends LitElement {
   private renderBudgetChip() {
     const f = this.footer;
     if (f.totalOnBreakers === 0) {
-      return html`<span class="budget-chip">All off</span>`;
+      return html`<span class="budget-chip"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7.07,18.28C7.5,17.38 10.12,16.5 12,16.5C13.88,16.5 16.5,17.38 16.93,18.28C15.57,19.36 13.86,20 12,20C10.14,20 8.43,19.36 7.07,18.28M18.36,16.83C16.93,15.09 13.46,14.5 12,14.5C10.54,14.5 7.07,15.09 5.64,16.83C4.62,15.5 4,13.82 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,13.82 19.38,15.5 18.36,16.83M12,6C10.06,6 8.5,7.56 8.5,9.5C8.5,11.44 10.06,13 12,13C13.94,13 15.5,11.44 15.5,9.5C15.5,7.56 13.94,6 12,6M12,11C11.17,11 10.5,10.33 10.5,9.5C10.5,8.67 11.17,8 12,8C12.83,8 13.5,8.67 13.5,9.5C13.5,10.33 12.83,11 12,11Z"/></svg> ${f.totalOnBreakers}/${f.totalBreakers} on</span>`;
     }
     const parts: string[] = [];
     parts.push(`${f.totalOnBreakers}/${f.totalBreakers}`);
     if (f.totalKwhPerHour > 0) {
       parts.push(`${formatKwh(f.totalKwhPerHour)}/h`);
-    } else {
-      parts.push(`0 Wh`);
     }
     if (f.batteryDrainPercentPerHour !== undefined) {
       parts.push(formatBatteryPercent(f.batteryDrainPercentPerHour));
     }
-    return html`<span class="budget-chip">${parts.join(" · ")}</span>`;
+    return html`
+      <span class="budget-chip">
+        <svg class="chip-icon" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+          <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M7.07,18.28C7.5,17.38 10.12,16.5 12,16.5C13.88,16.5 16.5,17.38 16.93,18.28C15.57,19.36 13.86,20 12,20C10.14,20 8.43,19.36 7.07,18.28M18.36,16.83C16.93,15.09 13.46,14.5 12,14.5C10.54,14.5 7.07,15.09 5.64,16.83C4.62,15.5 4,13.82 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,13.82 19.38,15.5 18.36,16.83M12,6C10.06,6 8.5,7.56 8.5,9.5C8.5,11.44 10.06,13 12,13C13.94,13 15.5,11.44 15.5,9.5C15.5,7.56 13.94,6 12,6M12,11C11.17,11 10.5,10.33 10.5,9.5C10.5,8.67 11.17,8 12,8C12.83,8 13.5,8.67 13.5,9.5C13.5,10.33 12.83,11 12,11Z"/>
+        </svg>
+        ${parts.join(" · ")}
+      </span>
+    `;
   }
 
   private renderEditor() {
@@ -482,6 +487,8 @@ export class SavantSceneDialog extends LitElement {
       .scene-tile {
         display: flex;
         align-items: center;
+        box-sizing: border-box;
+        overflow: hidden;
         width: 100%;
         padding: 12px 14px;
         text-align: left;
@@ -545,6 +552,9 @@ export class SavantSceneDialog extends LitElement {
 
       .tile-delete {
         /* specific context within tiles — inherits from .scene-delete-btn */
+        width: 28px;
+        height: 28px;
+        padding: 0;
       }
 
       .header-delete {
@@ -600,22 +610,28 @@ export class SavantSceneDialog extends LitElement {
       .budget-chip {
         flex: 1;
         min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
         font-size: 12px;
         font-weight: 600;
         padding: 4px 10px;
         border: 1px solid color-mix(in srgb, var(--primary-text-color) 70%, var(--divider-color));
         border-radius: var(--savant-radius);
-        color: var(--savant-muted);
+        color: var(--savant-tile-fg);
         background: linear-gradient(
-          145deg,
-          color-mix(in srgb, var(--savant-tile-bg) 84%, white),
+          180deg,
+          color-mix(in srgb, var(--savant-tile-bg-strong) 60%, var(--savant-surface-tint)),
           var(--savant-tile-bg)
         );
         box-shadow: var(--savant-shadow-sm);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        text-align: center;
+      }
+      .chip-icon {
+        flex: none;
+        opacity: 0.7;
       }
 
       .icon-btn {
