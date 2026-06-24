@@ -60,7 +60,11 @@ After HACS adds or updates that resource, refresh Home Assistant and open the da
 
 4. Refresh Home Assistant. The card should appear in the Home Assistant UI card picker as **Savant Energy Breaker Board**.
 
-## YAML Example
+## Configuration
+
+The Home Assistant visual card editor is the preferred setup path. YAML is still supported for advanced setups, and the full setting notes live in [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md).
+
+The card accepts the full YAML surface below. Omitted fields fall back to the defaults in `src/config/defaults.ts`.
 
 ```yaml
 type: custom:savant-energy-breaker-board-card
@@ -69,11 +73,16 @@ discovery:
   enabled: true
   integration: savant_energy
   include_new_breakers: true
+  panel_filter: null
+  area_filter: null
 layout:
-  group_by: panel
+  group_by: none
   sort_by: circuit_number
   density: comfortable
+  mobile_view: standard
 display:
+  show_title: true
+  hide_sem_chip: true
   show_current_power: true
   show_average_power: true
   show_maximum_power: true
@@ -82,26 +91,62 @@ display:
   show_icon: true
   show_state: true
   show_controls: true
-  show_area: false
+  show_area: true
   show_circuit_number: true
 graph:
   period: 24h
   refresh_interval_seconds: 300
 controls:
   default_mode: hold_confirm_off
+  warning_load_threshold_watts: 1000
+  high_load_threshold_watts: 2000
 excluded_breakers:
   - device:legacy_hidden_breaker
 breaker_overrides:
   device:network_closet:
     label: Network Closet
     show_controls: false
+    control_mode: hold
 manual_breakers:
   - id: kitchen_outlets
     name: Kitchen Outlets
     switch_entity: switch.kitchen_outlets_breaker
     power_entity: sensor.kitchen_outlets_power
     energy_entity: sensor.kitchen_outlets_energy
+    voltage_entity: sensor.kitchen_outlets_voltage
+    current_entity: sensor.kitchen_outlets_current
+    area_name: Kitchen
+    panel_name: Main Panel
+    circuit_number: 12
+scenes:
+  enabled: true
+  battery_capacity_kwh: 13.5
 ```
+
+## Panel View
+
+To make the card fill the full window, place the card inside a Home Assistant panel view. The part below just shows the panel wrapper; continue with the standard config block from the example above.
+
+```yaml
+views:
+  - title: Electrical Panel
+    type: panel
+    cards:
+      - type: custom:savant-energy-breaker-board-card
+        # continue with the same card config from the example above
+```
+
+## Scenes
+
+The card also includes a built-in scene editor. Enable it through the `scenes` config block, and set `battery_capacity_kwh` if you want the editor to show battery drain as `%/h` next to the total scene load and each breaker row.
+
+```yaml
+scenes:
+  enabled: true
+  battery_capacity_kwh: 13.5
+```
+
+Leave `battery_capacity_kwh` unset if you only want the watt and kWh/h totals.
 
 ## Auto-discovery
 

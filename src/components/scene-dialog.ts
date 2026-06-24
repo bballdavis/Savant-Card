@@ -12,6 +12,7 @@ import {
   formatBatteryPercent,
 } from "../data/scene-energy-calculator";
 import { sharedStyles } from "../styles/shared-styles";
+import "./savant-icon";
 import "./scene-breaker-row";
 
 @customElement("savant-scene-dialog")
@@ -293,7 +294,9 @@ export class SavantSceneDialog extends LitElement {
     return html`
       <div class="editor-scroll">
       <div class="page-header">
-        <button class="chip-tool page-back" @click=${this.goBack} aria-label="Back to scenes">←</button>
+        <button class="chip-tool page-back" @click=${this.goBack} aria-label="Back to scenes" title="Back to scenes">
+          <savant-icon icon="arrow_left" aria-hidden="true"></savant-icon>
+        </button>
         <span class="page-title">Edit Scene</span>
         <button
           class="scene-delete-btn header-delete"
@@ -412,6 +415,11 @@ export class SavantSceneDialog extends LitElement {
         line-height: 1;
         cursor: pointer;
         background-color: var(--savant-tile-bg);
+      }
+
+      .page-back savant-icon {
+        width: 14px;
+        height: 14px;
       }
 
       .chip-tool:hover,
