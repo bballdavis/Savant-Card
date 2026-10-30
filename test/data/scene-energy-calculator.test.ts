@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
+import type { BreakerStatistics } from "../../src/types/statistics";
 import { computeBreakerEnergy, computeSceneFooter } from "../../src/data/scene-energy-calculator";
 
 describe("scene energy calculator", () => {
   it("computes breaker battery drain percent per hour from average watts", () => {
-    const metrics = computeBreakerEnergy({ averageWatts: 1500 }, 15);
+    const metrics = computeBreakerEnergy(statistics(1500), 15);
 
     expect(metrics.averageWatts).toBe(1500);
     expect(metrics.averageKwPerHour).toBe(1.5);
@@ -31,10 +32,21 @@ describe("scene energy calculator", () => {
   });
 
   it("omits battery drain percent when capacity is not configured", () => {
-    const breaker = computeBreakerEnergy({ averageWatts: 750 }, undefined);
+    const breaker = computeBreakerEnergy(statistics(750), undefined);
     const summary = computeSceneFooter({ breaker_a: true }, new Map([["breaker_a", { averageWatts: 750 } as any]]), 0);
 
     expect(breaker.batteryDrainPercentPerHour).toBeUndefined();
     expect(summary.batteryDrainPercentPerHour).toBeUndefined();
   });
 });
+
+function statistics(averageWatts: number): BreakerStatistics {
+  return {
+    entityId: "sensor.example_power",
+    period: "24h",
+    points: [],
+    averageWatts,
+    maximumWatts: averageWatts,
+    loading: false,
+  };
+}
