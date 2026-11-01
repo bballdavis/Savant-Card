@@ -416,14 +416,14 @@ export class SavantEnergyBreakerBoardCard extends LitElement {
       const next = new Set(this.pendingSwitches);
       next.delete(breaker.id);
       this.pendingSwitches = next;
-      if (!succeeded) return;
-      const previousTimer = this.optimisticResetTimers.get(breaker.id);
-      if (previousTimer !== undefined) window.clearTimeout(previousTimer);
-      const timer = window.setTimeout(() => {
-        this.clearOptimisticSwitchState(breaker.id);
-      }, 15000);
-      this.optimisticResetTimers.set(breaker.id, timer);
     }
+    if (!succeeded) return;
+    const previousTimer = this.optimisticResetTimers.get(breaker.id);
+    if (previousTimer !== undefined) window.clearTimeout(previousTimer);
+    const timer = window.setTimeout(() => {
+      this.clearOptimisticSwitchState(breaker.id);
+    }, 15000);
+    this.optimisticResetTimers.set(breaker.id, timer);
   };
 
   private setOptimisticSwitchState(breakerId: string, switchState: string): void {

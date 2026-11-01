@@ -1,6 +1,5 @@
 import { LitElement, css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { repeat } from "lit/directives/repeat.js";
 import type { HomeAssistant } from "../types/home-assistant";
 import type { DiscoveredBreaker } from "../types/breaker";
 import type { BreakerStatistics } from "../types/statistics";

@@ -3708,29 +3708,30 @@ var zs = Object.defineProperty, js = Object.getOwnPropertyDescriptor, x = (t, e,
 let b = class extends y {
   constructor() {
     super(...arguments), this.config = N, this.breakers = [], this.loading = !0, this.error = "", this.stats = /* @__PURE__ */ new Map(), this.pendingSwitches = /* @__PURE__ */ new Set(), this.toggleErrors = /* @__PURE__ */ new Map(), this.stacked = !1, this.sortMenuOpen = !1, this.activePage = "breakers", this.searchOpen = !1, this.searchQuery = "", this.optimisticSwitchStates = /* @__PURE__ */ new Map(), this.discovery = new ct(), this.statistics = new Ms(), this.discoveryKey = "", this.statsRefreshToken = 0, this.optimisticResetTimers = /* @__PURE__ */ new Map(), this.handleToggle = async (t) => {
-      var o;
+      var l;
       if (t.stopPropagation(), !this.hass) return;
-      const e = this.breakers.find((n) => n.id === t.detail.breakerId), s = e == null ? void 0 : e.entities.switch;
+      const e = this.breakers.find((c) => c.id === t.detail.breakerId), s = e == null ? void 0 : e.entities.switch;
       if (!e || !s || this.pendingSwitches.has(e.id)) return;
-      const i = (this.optimisticSwitchStates.get(e.id) ?? ((o = this.hass.states[s]) == null ? void 0 : o.state)) === "on" ? "off" : "on";
+      const i = (this.optimisticSwitchStates.get(e.id) ?? ((l = this.hass.states[s]) == null ? void 0 : l.state)) === "on" ? "off" : "on";
       this.setOptimisticSwitchState(e.id, i), this.pendingSwitches = /* @__PURE__ */ new Set([...this.pendingSwitches, e.id]), this.toggleErrors.delete(e.id);
       let a = !1;
       try {
         await this.hass.callService("switch", i === "off" ? "turn_off" : "turn_on", { entity_id: s }), a = !0;
       } catch {
         this.clearOptimisticSwitchState(e.id);
-        const n = new Map(this.toggleErrors);
-        n.set(e.id, "Failed to toggle"), this.toggleErrors = n;
+        const c = new Map(this.toggleErrors);
+        c.set(e.id, "Failed to toggle"), this.toggleErrors = c;
       } finally {
-        const n = new Set(this.pendingSwitches);
-        if (n.delete(e.id), this.pendingSwitches = n, !a) return;
-        const l = this.optimisticResetTimers.get(e.id);
-        l !== void 0 && window.clearTimeout(l);
-        const c = window.setTimeout(() => {
-          this.clearOptimisticSwitchState(e.id);
-        }, 15e3);
-        this.optimisticResetTimers.set(e.id, c);
+        const c = new Set(this.pendingSwitches);
+        c.delete(e.id), this.pendingSwitches = c;
       }
+      if (!a) return;
+      const o = this.optimisticResetTimers.get(e.id);
+      o !== void 0 && window.clearTimeout(o);
+      const n = window.setTimeout(() => {
+        this.clearOptimisticSwitchState(e.id);
+      }, 15e3);
+      this.optimisticResetTimers.set(e.id, n);
     };
   }
   setConfig(t) {
